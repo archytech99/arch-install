@@ -261,6 +261,6 @@ EOF
 
 echo ""
 read -rp "Reboot system now ? [y/N] " reboot
-if [[ "$reboot" =~ ^[Nn]$ ]]; then
+if [[ "$reboot" =~ ^[Yy]$ ]]; then
     sudo reboot now
 fi

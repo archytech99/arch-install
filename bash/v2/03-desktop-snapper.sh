@@ -309,3 +309,7 @@ warn "Tip: always run paired snapshots before major changes:"
 echo "  sudo snapper -c root create --description 'pre-update'"
 echo "  sudo snapper -c home create --description 'pre-update'"
 echo ""
+read -rp "Reboot system now ? [y/N] " reboot
+if [[ "$reboot" =~ ^[Yy]$ ]]; then
+    sudo reboot now
+fi
