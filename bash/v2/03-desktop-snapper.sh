@@ -3,7 +3,8 @@
 # Script 3: Desktop Environment, Drivers & Snapper Setup
 # Run after first boot, as your normal user (sudo access)
 # ============================================================
-source ../.env
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+source "$SCRIPT_DIR/../.env"
 
 [[ $EUID -ne 0 ]] || die "Run as normal user (with sudo), not root."
 

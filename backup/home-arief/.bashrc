@@ -9,12 +9,10 @@
 
 alias ls='ls --color=auto'
 alias grep='grep --color=auto'
-#PS1='[\u@\h \W]\$ '
-PS1='[\u \W] > '
+PS1='[\u \W] ❯ '
 
 for f in ~/.bashrc.d/*; do
     if [ -f $f ]; then
         source $f
     fi
 done
-export PATH="$HOME/.local/bin:$PATH"

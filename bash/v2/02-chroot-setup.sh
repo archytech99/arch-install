@@ -3,7 +3,8 @@
 # Script 2: Chroot System Configuration + Bootloader + User
 # Run INSIDE arch-chroot /mnt
 # ============================================================
-source ../.env
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+source "$SCRIPT_DIR/../.env"
 
 [[ $EUID -eq 0 ]] || die "Run as root inside chroot."
 

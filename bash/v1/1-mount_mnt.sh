@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-source ../.env
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+source "$SCRIPT_DIR/../.env"
 
 echo ""
 read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART

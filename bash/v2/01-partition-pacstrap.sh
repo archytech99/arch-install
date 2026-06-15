@@ -3,7 +3,8 @@
 # Script 1: Partition, Format, Mount, Pacstrap
 # Run from Arch Linux Live USB
 # ============================================================
-source ../.env
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+source "$SCRIPT_DIR/../.env"
 
 clear
 echo ""
