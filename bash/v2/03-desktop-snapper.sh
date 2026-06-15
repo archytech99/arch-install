@@ -128,8 +128,8 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
     sudo systemctl enable sddm
 
     info "Creating default hyprland config..."
-    mkdir -p .config/hypr
-    cat > .config/hypr/hyprland.lua << 'EOF'
+    mkdir -p $HOME/.config/hypr
+    cat > $HOME/.config/hypr/hyprland.lua << 'EOF'
     -- See: https://github.com/hyprwm/Hyprland/blob/main/example/hyprland.lua
 
     hl.monitor({
