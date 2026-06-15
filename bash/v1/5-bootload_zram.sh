@@ -31,7 +31,7 @@ ENTRY
 
 # ── zram-generator ──────────────────────────────────────────
 info "Create zram config"
-cat > /etc/systemd/zram-generator.conf << ZRAMCONF
+sudo tee /etc/systemd/zram-generator.conf > /dev/null << ZRAMCONF
 [zram0]
 zram-size = ram / 2
 compression-algorithm = zstd
