@@ -1,0 +1,21 @@
+## helper for openvpn service
+
+ovpn() {
+    now=$(date +"%Y%m%d%H%M%S")
+    client=${1:-archytech}
+    if [ -z "$2" ]; then
+        sudo systemctl status openvpn-client@$client.service
+    else
+        case "$2" in
+            start|st)
+                sudo systemctl start openvpn-client@$client.service
+                ;;
+            stop|sp)
+                sudo systemctl stop openvpn-client@$client.service
+                ;;
+            *)
+                echo "[$now] parm3: start|stop"
+                ;;
+        esac
+    fi
+}

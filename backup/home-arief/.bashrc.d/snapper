@@ -1,0 +1,13 @@
+## helper for create snapshot `checkpoint`
+
+alias crlist="sudo snapper -c root list"
+crsnap() {
+    local now=$(date +"%Y%m%d%H%M%S")
+    if [ -z "$1" ]; then
+        local desc="[$now] auto-checkpoint"
+    else
+        local desc="[$now] $1"
+    fi
+    sudo snapper -c root create --description "$desc"
+    sudo snapper -c home create --description "$desc"
+}

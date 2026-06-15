@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+source ../.env
+
+# ── Pacstrap ────────────────────────────────────────────
+info "Running pacstrap (this may take a while)..."
+pacstrap -K /mnt \
+    base linux linux-firmware linux-headers systemd amd-ucode \
+    sudo nano btop git curl wget openssh bash-completion \
+    networkmanager ufw snapper zram-generator base-devel \
+    reflector rsync fastfetch net-tools man-db man-pages
+
+info "Generating fstab..."
+sleep 1
+echo "genfstab -U /mnt >> /mnt/etc/fstab"
+success "fstab generated."
+sleep 1
+echo "cat /mnt/etc/fstab"

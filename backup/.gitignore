@@ -1,0 +1,6 @@
+../cheat-sheet
+.bash-history
+host-servers
+/etc/*/client/*.conf
+/home-arief/.pki/
+/home-arief/.ssh/
