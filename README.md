@@ -1,6 +1,8 @@
-# Bootstrap Archlinux Fresh Install
+# Arch Linux Bootstrap Installer
 
-Kumpulan skrip *post-install* untuk instalasi Arch Linux berbasis **Btrfs + systemd-boot + Snapper**.
+**Arch Linux Bootstrap** adalah kerangka kerja pasca-instalasi yang dapat direproduksi untuk Arch Linux, dirancang berdasarkan snapshot Btrfs, systemd-boot, dan penyediaan desktop modular.
+
+Dibuat untuk pengguna yang lebih suka memahami setiap lapisan sistem mereka.
 
 Repo ini punya dua jalur utama:
 - **`bash/v1/`** — alur instalasi bertahap, dipisah per langkah.
@@ -124,187 +126,128 @@ Folder `backup/` menyimpan konfigurasi dan data penting. Sebagian isinya bersifa
 README ini dibuat sebagai ringkasan struktur dan alur skrip di `bash/`.
 Kalau nanti ada perubahan flow, cukup update tabel langkah dan daftar file di atas supaya tetap sinkron.
 
-## Cheat Sheets (log install)
+## Compatibility
 
-```log
-## Arch Linux Installation
-#######################################################################
-cfdisk /dev/nvme
-mkfs.fat -F32 /dev/<partition>
-mkfs.btrfs -f /dev/<partition>
+| Component | Supported |
+|---|---|
+| Boot Mode | UEFI only |
+| Filesystem | Btrfs only |
+| Bootloader | systemd-boot |
+| Desktop | KDE / Plasma / Hyprland |
 
-mount /dev/<partition> /mnt
-btrfs su cr /mnt/@
-btrfs su cr /mnt/@home
-btrfs su cr /mnt/@varlog
-btrfs su cr /mnt/@docker
-btrfs su cr /mnt/@snapshots
-btrfs su cr /mnt/@snapshots_home
-umount /mnt
+## Keybinding
 
-mount -o compress=zstd,subvol=@ /dev/<partition> /mnt
-mkdir -p /mnt/{boot,home,home/.snapshots,var/log,var/lib/docker,.snapshots}
-mount -o compress=zstd,subvol=@home /dev/<partition> /mnt/home
-mount -o compress=zstd,subvol=@varlog /dev/<partition> /mnt/var/log
-mount -o compress=zstd,subvol=@docker /dev/<partition> /mnt/var/lib/docker
-mount -o compress=zstd,subvol=@snapshots /dev/<partition> /mnt/.snapshots
-mount -o compress=zstd,subvol=@snapshots_home /dev/<partition> /mnt/home/.snapshots
-mount /dev/<partition> /mnt/boot
+Dokumentasi shortcut keyboard untuk environment **Hyprland**.
 
-pacstrap -K /mnt \
-base \
-linux \
-linux-firmware \
-linux-headers \
-amd-ucode \
-sudo \
-nano \
-btop \
-git \
-curl \
-wget \
-openssh \
-systemd \
-bash-completion \
-networkmanager \
-ufw \
-snapper \
-zram-generator \
-base-devel \
-reflector \
-rsync \
-fastfetch \
-man-db \
-man-pages
-genfstab -U /mnt >> /mnt/etc/fstab
-arch-chroot /mnt
-#######################################################################
+### Modifier Keys
 
-## pre-Config Root System
-#######################################################################
-ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-hwclock --systohc
-nano /etc/locale.gen
-locale-gen
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
-echo "KEYMAP=us" > /etc/vconsole.conf
-echo "archytech" > /etc/hostname
+| Key             | Deskripsi              |
+| --------------- | ---------------------- |
+| `SUPER`         | Tombol Super / Windows |
+| `SUPER + SHIFT` | Secondary modifier     |
+| `SUPER + CTRL`  | Tertiary modifier      |
 
-EDITOR=nano visudo
-## Uncomment to allow members of group wheel to execute any command
-# %wheel ALL=(ALL:ALL) ALL
+---
 
-useradd -m -G wheel <user>
-passwd <user>
-passwd
-systemctl enable NetworkManager
-systemctl enable sshd
-systemctl enable ufw
+### General Keybindings
 
-bootctl install
-# update value 'loader.conf'
-nano /boot/loader/loader.conf
-#default arch
-#timeout 3
-#editor no
+| Shortcut               | Fungsi                       |
+| ---------------------- | ---------------------------- |
+| `SUPER + ENTER`        | Membuka terminal             |
+| `SUPER + X`            | Menutup window aktif         |
+| `SUPER + CTRL + L`     | Logout / shutdown session    |
+| `SUPER + E`            | Membuka file manager         |
+| `SUPER + V`            | Toggle floating mode window  |
+| `SUPER + SPACE`        | Membuka application launcher |
+| `SUPER + CTRL + SPACE` | Membuka command runner       |
+| `SUPER + P`            | Toggle pseudo tiling         |
+| `SUPER + J`            | Toggle split layout          |
 
-# create file 'arch.conf' if not available
-lsblk -f
-nano /boot/loader/entries/arch.conf
-#title     Arch Linux
-#
-#linux    /vmlinuz-linux
-#
-#initrd    /amd-ucode.img
-#initrd    /initramfs-linux.img
-#
+---
 
-# Appending UUID to arch.conf
-ID=$(blkid -s UUID -o value /dev/<partition>)
-echo "options root=UUID=$ID rootflags=subvol=@ rw" >> \
-/boot/loader/entries/arch.conf
-lsblk -f && cat /boot/loader/entries/arch.conf
-mkinitcpio -P
+### Window Navigation
 
-# Enable parallel downloads packages
-nano /etc/pacman.conf
-pacman -Syu
+| Shortcut    | Fungsi                |
+| ----------- | --------------------- |
+| `SUPER + ←` | Fokus ke window kiri  |
+| `SUPER + →` | Fokus ke window kanan |
+| `SUPER + ↑` | Fokus ke window atas  |
+| `SUPER + ↓` | Fokus ke window bawah |
 
-# Install YAY as normal user
-su - <user>
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -sir
-cd ~
-exit # return to root
-#######################################################################
+---
 
-## Install Desktop Environment and Driver or
-## alt. Install Hyprland by ML4W
-## "bash <(curl -s https://ml4w.com/os/stable)"
-#######################################################################
-sudo pacman -Syu
-sudo pacman -S plasma-meta dolphin konsole kate sddm xorg
-sudo systemctl enable sddm
-sudo pacman -S \
-pipewire \
-pipewire-pulse \
-pipewire-alsa \
-wireplumber
-sudo pacman -S \
-mesa \
-vulkan-radeon \
-lib32-vulkan-radeon \
-steam \
-btrfs-assistant \
-libreoffice \
-unzip \
-p7zip
-#######################################################################
+### Workspace Management
 
-## Snapper Setup (After Live USB)
-#######################################################################
-# Snapper setup dance - root
-umount /.snapshots
-rmdir /.snapshots
-snapper -c root create-config /
-btrfs subvolume delete /.snapshots
-mkdir /.snapshots
-mount -a
-chmod 750 /.snapshots
+#### Pindah workspace
 
-# Snapper setup dance - home
-umount /home/.snapshots
-rmdir /home/.snapshots
-snapper -c home create-config /home/
-btrfs subvolume delete /home/.snapshots
-mkdir /home/.snapshots
-mount -a
-chmod 750 /home/.snapshots
+| Shortcut       | Fungsi                  |
+| -------------- | ----------------------- |
+| `SUPER + 1..9` | Pindah ke workspace 1–9 |
+| `SUPER + 0`    | Pindah ke workspace 10  |
 
-snapper -c root create --description "Fresh Arch Install"
-snapper -c home create --description "Fresh Arch Install"
-#######################################################################
+#### Pindahkan window ke workspace
 
-## Snapper Recovery Rollback (From Live USB)
-#######################################################################
-# Recovery Root
-lsblk -f
-mount -o subvolid=5 /dev/<partition> /mnt
-ls -la /mnt
-mv /mnt/@ /mnt/@-broken
-btrfs subvolume snapshot /mnt/@snapshots/<id>/snapshot /mnt/@
-umount /mnt
-reboot
+| Shortcut               | Fungsi                            |
+| ---------------------- | --------------------------------- |
+| `SUPER + SHIFT + 1..9` | Pindahkan window ke workspace 1–9 |
+| `SUPER + SHIFT + 0`    | Pindahkan window ke workspace 10  |
 
-# Recovery Home
-lsblk -f
-mount -o subvolid=5 /dev/<partition> /mnt
-ls -la /mnt
-mv /mnt/@home /mnt/@home-broken
-btrfs subvolume snapshot /mnt/@snapshots_home/<id>/snapshot /mnt/@home
-umount /mnt
-reboot
-#######################################################################
+#### Workspace cycling
 
-```
+| Shortcut                    | Fungsi               |
+| --------------------------- | -------------------- |
+| `SUPER + Mouse Scroll Down` | Workspace berikutnya |
+| `SUPER + Mouse Scroll Up`   | Workspace sebelumnya |
+
+---
+
+### Mouse Actions
+
+| Shortcut              | Fungsi        |
+| --------------------- | ------------- |
+| `SUPER + Left Click`  | Drag window   |
+| `SUPER + Right Click` | Resize window |
+
+---
+
+### Audio Controls
+
+| Shortcut      | Fungsi                 |
+| ------------- | ---------------------- |
+| `Volume Up`   | Naikkan volume +5%     |
+| `Volume Down` | Turunkan volume -5%    |
+| `Mute`        | Toggle mute speaker    |
+| `Mic Mute`    | Toggle mute microphone |
+
+---
+
+### Brightness Controls
+
+| Shortcut          | Fungsi                 |
+| ----------------- | ---------------------- |
+| `Brightness Up`   | Tambah brightness +5%  |
+| `Brightness Down` | Kurangi brightness -5% |
+
+---
+
+### Media Controls
+
+| Shortcut         | Fungsi             |
+| ---------------- | ------------------ |
+| `Next Track`     | Lagu berikutnya    |
+| `Play / Pause`   | Play / Pause media |
+| `Previous Track` | Lagu sebelumnya    |
+
+---
+
+### Notes
+
+* Semua shortcut berbasis **Hyprland dispatcher**.
+* Multimedia key (`XF86*`) bergantung pada keyboard/laptop yang mendukung.
+* Audio control menggunakan:
+
+  * `wpctl`
+  * `playerctl`
+* Brightness control menggunakan:
+
+  * `brightnessctl`
