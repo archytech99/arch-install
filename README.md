@@ -1,4 +1,4 @@
-# Postinstall
+# Bootstrap Archlinux Fresh Install
 
 Kumpulan skrip *post-install* untuk instalasi Arch Linux berbasis **Btrfs + systemd-boot + Snapper**.
 
@@ -58,9 +58,8 @@ Repo ini punya dua jalur utama:
 | `1-mount_mnt.sh` | Mount semua subvolume ke `/mnt` |
 | `2-pacstrap_mnt.sh` | Install paket dasar ke sistem target |
 | `3-lctime-hostname.sh` | Set timezone, locale, dan hostname |
-| `4-gen_uuid.sh` | Generate UUID root dan cek entry bootloader |
-| `5-user_sudoers.sh` | Buat user, set password, aktifkan sudo, install `yay` |
-| `6-bootload_zram.sh` | Setup systemd-boot, `zram-generator`, dan `pacman.conf` |
+| `4-user_sudoers.sh` | Buat user, set password, aktifkan sudo, install `yay` |
+| `5-bootload_zram.sh` | Setup systemd-boot, `zram-generator`, dan `pacman.conf` |
 | `6-desktop_environment.sh` | Install desktop environment dan paket pendukung |
 | `7-setup_snapshots.sh` | Setup Snapper dan snapshot awal |
 
@@ -85,8 +84,13 @@ Skrip ini diasumsikan dijalankan di lingkungan Arch Linux dan membutuhkan:
 ### Untuk alur `v2` yang lebih ringkas
 
 ```bash
-cd /data/WorkBase/Postinstall/bash/v2
+# pastikan sudah clone repo (git clone https://github.com/archytech99/arch-install.git)
+cd arch-install/bash/v2
 bash 01-partition-pacstrap.sh
+# setelah selesai install:
+genfstab -U /mnt >> /mnt/etc/fstab
+# memastikan apakah sudah benar
+cat /mnt/etc/fstab
 arch-chroot /mnt
 bash /root/02-chroot-setup.sh
 exit
@@ -109,6 +113,7 @@ Jalankan skrip sesuai urutan nomornya dari lingkungan yang sesuai:
 - Skrip meminta input manual untuk disk, partisi, hostname, username, dan opsi desktop.
 - Beberapa langkah masih interaktif dan tidak sepenuhnya non-interaktif.
 - `v2` lebih praktis untuk pemakaian berulang karena alurnya sudah dikonsolidasi.
+- Silahkan edit/update setiap skrip sesuai dengan kebutuhan.
 
 ## Backup folder
 
