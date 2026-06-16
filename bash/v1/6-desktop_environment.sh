@@ -2,6 +2,20 @@
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/../.env"
 
+# ── YAY (AUR helper) ────────────────────────────────────
+if ! command -v yay &> /dev/null; then
+    warning "yay not found. Installing yay..."
+
+    tmp_dir=$(mktemp -d)
+    git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
+
+    cd "$tmp_dir/yay"
+    makepkg -si --noconfirm
+fi
+
+# ── Time synchronization ────────────────────────────────
+timedatectl set-ntp true
+
 # ── Desktop environment ─────────────────────────────────
 info "Choose desktop environment:"
 info "  1) KDE Plasma"
@@ -9,9 +23,6 @@ info "  2) Hyprland"
 info "  3) Hyprland via ML4W"
 read -rp "Choice [1]: " DE_CHOICE
 DE_CHOICE="${DE_CHOICE:-1}"
-
-# ── Time synchronization ────────────────────────────────
-timedatectl set-ntp true
 
 if [[ "$DE_CHOICE" == "1" ]]; then
     info "Installing KDE Plasma..."
@@ -24,11 +35,49 @@ if [[ "$DE_CHOICE" == "1" ]]; then
     sudo pacman -S --noconfirm pipewire pipewire-pulse pipewire-alsa wireplumber
     success "PipeWire installed."
 
-    info "Installing GPU drivers and apps..."
-    sudo pacman -S --noconfirm \
-        mesa vulkan-radeon lib32-vulkan-radeon \
-        steam btrfs-assistant libreoffice
-    success "GPU drivers and apps installed."
+
+    info "Installing graphics stack..."
+    info "Choose GPU vendor:"
+    info "  1) AMD"
+    info "  2) NVIDIA"
+    info "  3) Intel"
+    read -rp "Choice [1]: " GPU_CHOICE
+    GPU_CHOICE="${GPU_CHOICE:-1}"
+    if [[ "$GPU_CHOICE" == "1" ]]; then
+        info "Installing AMD GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            mesa \
+            vulkan-radeon \
+            vulkan-intel \
+            vulkan-tools \
+            lib32-vulkan-radeon \
+            lib32-mesa \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "AMD stack installed."
+    elif [[ "$GPU_CHOICE" == "2" ]]; then
+        info "Installing NVIDIA GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            nvidia-dkms \
+            nvidia-utils \
+            lib32-nvidia-utils \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "NVIDIA stack installed."
+    elif [[ "$GPU_CHOICE" == "3" ]]; then
+        info "Installing Intel GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            vulkan-intel \
+            lib32-vulkan-intel \
+            intel-media-driver \
+            lib32-mesa \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "Intel stack installed."
+    fi
 
 elif [[ "$DE_CHOICE" == "2" ]]; then
     info "Installing Hyprland..."
@@ -67,14 +116,47 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
         pavucontrol
 
     info "Installing graphics stack..."
-    sudo pacman -S --needed --noconfirm \
-        mesa \
-        vulkan-radeon \
-        vulkan-intel \
-        vulkan-tools \
-        egl-wayland \
-        libva-utils \
-        brightnessctl
+    info "Choose GPU vendor:"
+    info "  1) AMD"
+    info "  2) NVIDIA"
+    info "  3) Intel"
+    read -rp "Choice [1]: " GPU_CHOICE
+    GPU_CHOICE="${GPU_CHOICE:-1}"
+    if [[ "$GPU_CHOICE" == "1" ]]; then
+        info "Installing AMD GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            mesa \
+            vulkan-radeon \
+            vulkan-intel \
+            vulkan-tools \
+            lib32-vulkan-radeon \
+            lib32-mesa \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "AMD stack installed."
+    elif [[ "$GPU_CHOICE" == "2" ]]; then
+        info "Installing NVIDIA GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            nvidia-dkms \
+            nvidia-utils \
+            lib32-nvidia-utils \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "NVIDIA stack installed."
+    elif [[ "$GPU_CHOICE" == "3" ]]; then
+        info "Installing Intel GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            vulkan-intel \
+            lib32-vulkan-intel \
+            intel-media-driver \
+            lib32-mesa \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "Intel stack installed."
+    fi
 
     info "Installing Hyprland ecosystem..."
     sudo pacman -S --needed --noconfirm \
@@ -369,14 +451,47 @@ elif [[ "$DE_CHOICE" == "3" ]]; then
     sudo systemctl enable NetworkManager
     sudo systemctl enable bluetooth
 
-    if ! command -v yay &> /dev/null; then
-        warning "yay not found. Installing yay..."
-
-        tmp_dir=$(mktemp -d)
-        git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
-
-        cd "$tmp_dir/yay"
-        makepkg -si --noconfirm
+    info "Installing graphics stack..."
+    info "Choose GPU vendor:"
+    info "  1) AMD"
+    info "  2) NVIDIA"
+    info "  3) Intel"
+    read -rp "Choice [1]: " GPU_CHOICE
+    GPU_CHOICE="${GPU_CHOICE:-1}"
+    if [[ "$GPU_CHOICE" == "1" ]]; then
+        info "Installing AMD GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            mesa \
+            vulkan-radeon \
+            vulkan-intel \
+            vulkan-tools \
+            lib32-vulkan-radeon \
+            lib32-mesa \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "AMD stack installed."
+    elif [[ "$GPU_CHOICE" == "2" ]]; then
+        info "Installing NVIDIA GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            nvidia-dkms \
+            nvidia-utils \
+            lib32-nvidia-utils \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "NVIDIA stack installed."
+    elif [[ "$GPU_CHOICE" == "3" ]]; then
+        info "Installing Intel GPU stack..."
+        sudo pacman -S --needed --noconfirm \
+            vulkan-intel \
+            lib32-vulkan-intel \
+            intel-media-driver \
+            lib32-mesa \
+            egl-wayland \
+            libva-utils \
+            brightnessctl
+        success "Intel stack installed."
     fi
 
     info "Installing AUR packages"
