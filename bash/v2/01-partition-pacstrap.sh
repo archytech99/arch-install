@@ -68,9 +68,7 @@ mkfs.btrfs -f /dev/$ROOT_PART
 
 # ── Create Btrfs subvolumes ─────────────────────────────
 info "Mounting root to create subvolumes..."
-if [[ "$BOOT_MODE" == "UEFI" ]]; then
 mount /dev/$ROOT_PART /mnt
-fi
 
 for subvol in @ @home @varlog @docker @snapshots @snapshots_home; do
     btrfs subvolume create /mnt/$subvol
@@ -97,7 +95,9 @@ info "Creating mount directories...@snapshots_home"
 sleep 1
 mkdir "/mnt/home/.snapshots"
 mount -o compress=zstd,subvol=@snapshots_home /dev/$ROOT_PART /mnt/home/.snapshots
-mount /dev/$BOOT_PART /mnt/boot
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    mount /dev/$BOOT_PART /mnt/boot
+fi
 
 success "All partitions mounted."
 lsblk /dev/$DISK
