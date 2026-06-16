@@ -64,13 +64,13 @@ elif [[ "$BOOT_MODE" == "BIOS" ]]; then
 fi
 
 info "Formatting root partition as Btrfs..."
-if [[ "$BOOT_MODE" == "UEFI" ]]; then
-    mkfs.btrfs -f /dev/$ROOT_PART
-fi
+mkfs.btrfs -f /dev/$ROOT_PART
 
 # ── Create Btrfs subvolumes ─────────────────────────────
 info "Mounting root to create subvolumes..."
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
 mount /dev/$ROOT_PART /mnt
+fi
 
 for subvol in @ @home @varlog @docker @snapshots @snapshots_home; do
     btrfs subvolume create /mnt/$subvol
