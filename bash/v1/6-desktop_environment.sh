@@ -3,12 +3,15 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/../.env"
 
 # ── Desktop environment ─────────────────────────────────
-echo "Choose desktop environment:"
-echo "  1) KDE Plasma"
-echo "  2) Hyprland"
-echo "  3) Hyprland via ML4W"
+info "Choose desktop environment:"
+info "  1) KDE Plasma"
+info "  2) Hyprland"
+info "  3) Hyprland via ML4W"
 read -rp "Choice [1]: " DE_CHOICE
 DE_CHOICE="${DE_CHOICE:-1}"
+
+# ── Time synchronization ────────────────────────────────
+timedatectl set-ntp true
 
 if [[ "$DE_CHOICE" == "1" ]]; then
     info "Installing KDE Plasma..."

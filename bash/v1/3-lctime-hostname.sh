@@ -5,7 +5,6 @@ source "$SCRIPT_DIR/../.env"
 # ── Timezone & locale ───────────────────────────────────
 info "Setting timezone to Asia/Jakarta..."
 ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
-timedatectl set-ntp true
 hwclock --systohc
 
 info "Configuring locale..."
