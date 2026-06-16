@@ -25,8 +25,10 @@ info "Detected boot mode: $BOOT_MODE"
 # ── Disk selection ──────────────────────────────────────
 lsblk -d -o NAME,SIZE,TYPE | grep disk
 info ""
-info "note: Make sure to create partition /boot for"
-info "UEFI mode, or BIOS boot partition for GPT+GRUB in BIOS mode."
+warn "note: Make sure to create partition /boot for"
+warn "UEFI mode, or BIOS boot partition for GPT+GRUB in BIOS mode."
+die "BIOS+GPT requires bios_grub partition (1–5 MiB)"
+echo ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
 
