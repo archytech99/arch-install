@@ -8,10 +8,9 @@ pacman -S --needed --noconfirm \
 grub \
 os-prober
 
-lsblk -d -o NAME,SIZE,TYPE | grep disk
 echo ""
+lsblk -d -o NAME,SIZE,TYPE | grep disk
 read -rp "Enter target disk for GRUB install (e.g. sda, nvme0n1): " DISK
-
 [[ -b "/dev/$DISK" ]] || die "/dev/$DISK not found."
 
 grub-install \
