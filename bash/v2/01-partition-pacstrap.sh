@@ -25,6 +25,8 @@ info "Detected boot mode: $BOOT_MODE"
 # ── Disk selection ──────────────────────────────────────
 lsblk -d -o NAME,SIZE,TYPE | grep disk
 info ""
+info "note: Maker sure to create partition /boot for"
+info "UEFI mode, or BIOS boot partition for GPT+GRUB in BIOS mode."
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
 
@@ -46,10 +48,8 @@ cfdisk /dev/$DISK
 info ""
 lsblk /dev/$DISK
 info ""
-if [[ "$BOOT_MODE" == "UEFI" ]]; then
-    read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
-    [[ -b "/dev/$EFI_PART" ]] || die "/dev/$EFI_PART not found."
-fi
+read -rp "Boot partition (e.g. nvme0n1p1): " BOOT_PART
+[[ -b "/dev/$BOOT_PART" ]] || die "/dev/$BOOT_PART not found."
 
 read -rp "Root partition (e.g. nvme0n1p2): " ROOT_PART
 [[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
@@ -57,7 +57,10 @@ read -rp "Root partition (e.g. nvme0n1p2): " ROOT_PART
 # ── Format ──────────────────────────────────────────────
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
     info "Formatting EFI partition..."
-    mkfs.fat -F32 /dev/$EFI_PART
+    mkfs.fat -F32 /dev/$BOOT_PART
+elif [[ "$BOOT_MODE" == "BIOS" ]]; then
+    info "BIOS mode detected, skipping partition formatting."
+    sleep 2
 fi
 
 info "Formatting root partition as Btrfs..."
@@ -92,10 +95,7 @@ info "Creating mount directories...@snapshots_home"
 sleep 1
 mkdir "/mnt/home/.snapshots"
 mount -o compress=zstd,subvol=@snapshots_home /dev/$ROOT_PART /mnt/home/.snapshots
-
-if [[ "$BOOT_MODE" == "UEFI" ]]; then
-    mount /dev/$EFI_PART /mnt/boot
-fi
+mount /dev/$BOOT_PART /mnt/boot
 
 success "All partitions mounted."
 lsblk /dev/$DISK
@@ -116,9 +116,7 @@ cat /mnt/etc/fstab
 
 info ""
 success "Pacstrap complete! Next step:"
-info "  cp 02-chroot-setup.sh /root/02-chroot-setup.sh"
-info "  cp 03-desktop-snapper.sh /root/03-desktop-snapper.sh"
 info "  arch-chroot /mnt"
-info "  bash /root/02-chroot-setup.sh"
+info "  bash -x /root/02-chroot-setup.sh"
 sleep 2
 info ""
