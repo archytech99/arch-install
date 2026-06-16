@@ -41,6 +41,11 @@ HOSTNAME="${HOSTNAME:-archytech}"
 echo "$HOSTNAME" > /etc/hostname
 success "Hostname set to: $HOSTNAME"
 
+# ── Sudoers ─────────────────────────────────────────────
+info "Enabling wheel group in sudoers..."
+sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
+success "Wheel group enabled."
+
 # ── User setup ──────────────────────────────────────────
 read -rp "Add new user: (Y)es/(N)o" CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
@@ -63,11 +68,6 @@ if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
 fi
 info "Set root password:"
 passwd
-
-# ── Sudoers ─────────────────────────────────────────────
-info "Enabling wheel group in sudoers..."
-sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
-success "Wheel group enabled."
 
 # ── Services ────────────────────────────────────────────
 info "Enabling services..."

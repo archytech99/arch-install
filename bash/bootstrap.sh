@@ -21,8 +21,8 @@ if [[ "$DE_CHOICE" == "1" ]]; then
     # bash v1/7-setup_snapshots.sh
 elif [[ "$DE_CHOICE" == "2" ]]; then
     bash v2/01-partition-pacstrap.sh
-    bash v2/02-chroot-setup.sh
-    bash v2/03-desktop-snapper.sh
+    #bash v2/02-chroot-setup.sh
+    #bash v2/03-desktop-snapper.sh
 else
     die "Invalid choice. Exiting."
     exit 1
