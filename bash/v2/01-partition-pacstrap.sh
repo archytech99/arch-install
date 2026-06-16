@@ -27,7 +27,7 @@ lsblk -d -o NAME,SIZE,TYPE | grep disk
 info ""
 warn "note: Make sure to create partition /boot for"
 warn "UEFI mode, or BIOS boot partition for GPT+GRUB in BIOS mode."
-die "BIOS+GPT requires bios_grub partition (1–5 MiB)"
+warn "BIOS+GPT requires bios_grub partition (1–5 MiB)"
 echo ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
