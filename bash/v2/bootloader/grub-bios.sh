@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-set -e
-
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/../../.env"
 
 info "Installing GRUB for BIOS..."
 
-pacman -S --needed --noconfirm 
-grub 
+pacman -S --needed --noconfirm \
+grub \
 os-prober
 
 lsblk -d -o NAME,SIZE,TYPE | grep disk
@@ -16,9 +14,9 @@ read -rp "Enter target disk for GRUB install (e.g. sda, nvme0n1): " DISK
 
 [[ -b "/dev/$DISK" ]] || die "/dev/$DISK not found."
 
-grub-install 
---target=i386-pc 
---recheck 
+grub-install \
+--target=i386-pc \
+--recheck \
 /dev/$DISK
 
 # Optional: enable os-prober

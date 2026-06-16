@@ -8,9 +8,9 @@ info "Installing GRUB for UEFI..."
 
 # Required packages
 
-pacman -S --needed --noconfirm 
-grub 
-efibootmgr 
+pacman -S --needed --noconfirm \
+grub \
+efibootmgr \
 os-prober
 
 # Validate EFI mount
@@ -19,10 +19,10 @@ mountpoint -q /boot || die "/boot is not mounted. Mount EFI partition first."
 
 # Install GRUB
 
-grub-install 
---target=x86_64-efi 
---efi-directory=/boot 
---bootloader-id=ArchLinux 
+grub-install \
+--target=x86_64-efi \
+--efi-directory=/boot \
+--bootloader-id=ArchLinux \
 --recheck
 
 # Optional: enable os-prober
