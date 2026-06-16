@@ -109,9 +109,10 @@ pacstrap -K /mnt \
     reflector rsync fastfetch net-tools man-db man-pages
 
 info "Generating fstab..."
-info "genfstab -U /mnt >> /mnt/etc/fstab"
+sleep 1
+genfstab -U /mnt >> /mnt/etc/fstab
 success "fstab generated."
-info "cat /mnt/etc/fstab"
+cat /mnt/etc/fstab
 
 info ""
 success "Pacstrap complete! Next step:"
@@ -119,4 +120,5 @@ info "  cp 02-chroot-setup.sh /root/02-chroot-setup.sh"
 info "  cp 03-desktop-snapper.sh /root/03-desktop-snapper.sh"
 info "  arch-chroot /mnt"
 info "  bash /root/02-chroot-setup.sh"
+sleep 2
 info ""

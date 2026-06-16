@@ -47,7 +47,8 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: A
 success "Wheel group enabled."
 
 # ── User setup ──────────────────────────────────────────
-read -rp "Add new user: (Y)es/(N)o" CONFIRM
+info "Create new user? (Recommended for daily use instead of root)"
+read -rp "Answer (Y)es/(N)o: " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     read -rp "New username: " USERNAME
     [[ -n "$USERNAME" ]] || die "Username cannot be empty."
@@ -77,9 +78,10 @@ systemctl enable ufw
 success "Services enabled."
 
 # ── pacman.conf ─────────────────────────────────────────
-info "Enabling ParallelDownloads and multilib in pacman.conf..."
-sed -i 's/^#[multilib]/[multilib]/' /etc/pacman.conf
-sed -i 's/^#Include = /etc/pacman.d/mirrorlist/Include = /etc/pacman.d/mirrorlist/' /etc/pacman.conf
+info "Enabling Parallel Downloads and multilib in pacman.conf..."
+grep -q "^\#\[multilib\]" /etc/pacman.conf && \
+sed -i 's/^#\[multilib\]/[multilib]/' /etc/pacman.conf
+sed -i 's|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/mirrorlist|' /etc/pacman.conf
 #nano /etc/pacman.conf
 pacman -Syu --noconfirm
 
@@ -88,7 +90,7 @@ case "$BOOT_MODE" in
         info "Choose bootloader:"
         info "  1) systemd-boot"
         info "  2) GRUB (not recommended for UEFI)"
-        info -rp "Choice [1]: " DE_CHOICE
+        read -rp "Choice [1]: " DE_CHOICE
         DE_CHOICE="${DE_CHOICE:-1}"
 
         if [[ "$DE_CHOICE" == "1" ]]; then
