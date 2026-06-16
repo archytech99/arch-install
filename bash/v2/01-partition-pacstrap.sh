@@ -48,8 +48,10 @@ cfdisk /dev/$DISK
 info ""
 lsblk /dev/$DISK
 info ""
-read -rp "Boot partition (e.g. nvme0n1p1): " BOOT_PART
-[[ -b "/dev/$BOOT_PART" ]] || die "/dev/$BOOT_PART not found."
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    read -rp "Boot partition (e.g. nvme0n1p1): " BOOT_PART
+    [[ -b "/dev/$BOOT_PART" ]] || die "/dev/$BOOT_PART not found."
+fi
 
 read -rp "Root partition (e.g. nvme0n1p2): " ROOT_PART
 [[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
