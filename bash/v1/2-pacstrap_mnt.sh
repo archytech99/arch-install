@@ -8,11 +8,10 @@ pacstrap -K /mnt \
     base linux linux-firmware linux-headers systemd amd-ucode \
     sudo nano btop git curl wget openssh bash-completion \
     networkmanager ufw snapper zram-generator base-devel \
-    reflector rsync fastfetch net-tools man-db man-pages
+    reflector rsync fastfetch net-tools man-db man-pages \
+    grub efibootmgr os-prober
 
 info "Generating fstab..."
-sleep 1
-echo "genfstab -U /mnt >> /mnt/etc/fstab"
+info "genfstab -U /mnt >> /mnt/etc/fstab"
 success "fstab generated."
-sleep 1
-echo "cat /mnt/etc/fstab"
+info "cat /mnt/etc/fstab"

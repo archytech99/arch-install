@@ -2,11 +2,14 @@
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/../.env"
 
-echo ""
-read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
-[[ -b "/dev/$EFI_PART" ]]  || die "/dev/$EFI_PART not found."
-read -rp "Root (Btrfs) partition (e.g. nvme0n1p2): " ROOT_PART
-[[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
+# ── Detection Firmware ──────────────────────────────────
+if [[ -d /sys/firmware/efi ]]; then
+    BOOT_MODE="UEFI"
+else
+    BOOT_MODE="BIOS"
+fi
+
+info "Detected boot mode: $BOOT_MODE"
 
 # ── Mount subvolumes ────────────────────────────────────
 info "Mounting @ subvolume..."
@@ -27,6 +30,9 @@ sleep 1
 mkdir "/mnt/home/.snapshots"
 mount -o compress=zstd,subvol=@snapshots_home /dev/$ROOT_PART /mnt/home/.snapshots
 
-mount /dev/$EFI_PART /mnt/boot
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    mount /dev/$EFI_PART /mnt/boot
+fi
 
 success "All partitions mounted."
+lsblk /dev/$DISK

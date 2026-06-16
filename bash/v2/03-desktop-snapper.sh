@@ -8,17 +8,17 @@ source "$SCRIPT_DIR/../.env"
 
 [[ $EUID -ne 0 ]] || die "Run as normal user (with sudo), not root."
 
-echo ""
-echo "=================================================="
-echo "   Arch Linux Install — Desktop & Snapper"
-echo "=================================================="
-echo ""
+info ""
+info "=================================================="
+info "   Arch Linux Install — Desktop & Snapper"
+info "=================================================="
+info ""
 
 # ── Desktop environment ─────────────────────────────────
-echo "Choose desktop environment:"
-echo "  1) KDE Plasma"
-echo "  2) Hyprland"
-echo "  3) Hyprland via ML4W"
+info "Choose desktop environment:"
+info "  1) KDE Plasma"
+info "  2) Hyprland"
+info "  3) Hyprland via ML4W"
 read -rp "Choice [1]: " DE_CHOICE
 DE_CHOICE="${DE_CHOICE:-1}"
 
@@ -510,16 +510,16 @@ sudo snapper -c root create --description "Fresh Arch Install"
 sudo snapper -c home create --description "Fresh Arch Install"
 success "Snapshots created."
 
-echo ""
+info ""
 sudo snapper -c root ls
 sudo snapper -c home ls
 
-echo ""
+info ""
 success "All done! Your Arch Linux system is ready."
 warn "Tip: always run paired snapshots before major changes:"
-echo "  sudo snapper -c root create --description 'pre-update'"
-echo "  sudo snapper -c home create --description 'pre-update'"
-echo ""
+info "  sudo snapper -c root create --description 'pre-update'"
+info "  sudo snapper -c home create --description 'pre-update'"
+info ""
 read -rp "Reboot system now ? [y/N] " reboot
 if [[ "$reboot" =~ ^[Yy]$ ]]; then
     sudo reboot now

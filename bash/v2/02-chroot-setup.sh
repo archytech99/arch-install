@@ -14,6 +14,13 @@ echo "   Arch Linux Install — Chroot Configuration"
 echo "=================================================="
 echo ""
 
+# ── Detection Firmware ──────────────────────────────────
+if [[ -d /sys/firmware/efi ]]; then
+    BOOT_MODE="UEFI"
+else
+    BOOT_MODE="BIOS"
+fi
+
 # ── Timezone & locale ───────────────────────────────────
 info "Setting timezone to Asia/Jakarta..."
 ln -sf /usr/share/zoneinfo/Asia/Jakarta /etc/localtime
@@ -35,12 +42,25 @@ echo "$HOSTNAME" > /etc/hostname
 success "Hostname set to: $HOSTNAME"
 
 # ── User setup ──────────────────────────────────────────
-read -rp "New username: " USERNAME
-[[ -n "$USERNAME" ]] || die "Username cannot be empty."
+read -rp "Add new user: (Y)es/(N)o" CONFIRM
+if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
+    read -rp "New username: " USERNAME
+    [[ -n "$USERNAME" ]] || die "Username cannot be empty."
 
-useradd -m -G wheel "$USERNAME"
-info "Set password for $USERNAME:"
-passwd "$USERNAME"
+    useradd -m -G wheel "$USERNAME"
+    info "Set password for $USERNAME:"
+    passwd "$USERNAME"
+
+    # ── YAY (AUR helper) ────────────────────────────────────
+    info "Installing yay as $USERNAME..."
+    su - "$USERNAME" -c "
+        git clone https://aur.archlinux.org/yay.git /tmp/yay
+        cd /tmp/yay
+        makepkg -sir --noconfirm
+        rm -rf /tmp/yay
+    "
+    success "yay installed."
+fi
 info "Set root password:"
 passwd
 
@@ -56,70 +76,42 @@ systemctl enable sshd
 systemctl enable ufw
 success "Services enabled."
 
-# ── Bootloader ──────────────────────────────────────────
-info "Installing systemd-boot..."
-bootctl install
-
-cat > /boot/loader/loader.conf << 'LOADER'
-default arch
-timeout 3
-editor no
-LOADER
-
-info "Detecting root partition UUID..."
-lsblk -f
-
-read -rp "Enter root (Btrfs) partition (e.g. nvme0n1p2): " ROOT_PART
-[[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
-
-ROOT_UUID=$(blkid -s UUID -o value /dev/$ROOT_PART)
-[[ -n "$ROOT_UUID" ]] || die "Could not get UUID for /dev/$ROOT_PART."
-
-cat > /boot/loader/entries/arch.conf << ENTRY
-title     Arch Linux
-linux     /vmlinuz-linux
-initrd    /amd-ucode.img
-initrd    /initramfs-linux.img
-options   root=UUID=$ROOT_UUID rootflags=subvol=@ rw
-ENTRY
-
-success "Bootloader entry created."
-cat /boot/loader/entries/arch.conf
-
 # ── pacman.conf ─────────────────────────────────────────
 info "Enabling ParallelDownloads and multilib in pacman.conf..."
-nano /etc/pacman.conf
+sed -i 's/^#[multilib]/[multilib]/' /etc/pacman.conf
+sed -i 's/^#Include = /etc/pacman.d/mirrorlist/Include = /etc/pacman.d/mirrorlist/' /etc/pacman.conf
+#nano /etc/pacman.conf
 pacman -Syu --noconfirm
 
-# ── mkinitcpio ──────────────────────────────────────────
-info "Regenerating initramfs..."
-mkinitcpio -P
-success "initramfs done."
+case "$BOOT_MODE" in
+    UEFI)
+        info "Choose bootloader:"
+        info "  1) systemd-boot"
+        info "  2) GRUB (not recommended for UEFI)"
+        info -rp "Choice [1]: " DE_CHOICE
+        DE_CHOICE="${DE_CHOICE:-1}"
 
-# ── zram-generator ──────────────────────────────────────────
-info "Create zram config"
-sudo tee /etc/systemd/zram-generator.conf > /dev/null << ZRAMCONF
-[zram0]
-zram-size = ram / 2
-compression-algorithm = zstd
-ZRAMCONF
-success "zram-gen done."
+        if [[ "$DE_CHOICE" == "1" ]]; then
+            bash bootloader/systemd-boot.sh
+        elif [[ "$DE_CHOICE" == "2" ]]; then
+            warn "GRUB is not recommended for UEFI systems. Are you sure?"
+            read -rp "Type 'yes' to continue: " CONFIRM
+            [[ "$CONFIRM" == "yes" ]] || die "Aborted."
+            bash bootloader/grub-efi.sh
+        else
+            warn "Invalid choice, defaulting to systemd-boot."
+            sleep 2
+            bash bootloader/systemd-boot.sh
+        fi
+        ;;
+    BIOS)
+        bash bootloader/grub-bios.sh
+        ;;
+esac
 
-# ── YAY (AUR helper) ────────────────────────────────────
-info "Installing yay as $USERNAME..."
-su - "$USERNAME" -c "
-    git clone https://aur.archlinux.org/yay.git /tmp/yay
-    cd /tmp/yay
-    makepkg -sir --noconfirm
-    rm -rf /tmp/yay
-"
-success "yay installed."
-
-echo ""
+info ""
 success "Chroot setup complete! Next steps:"
-echo "  exit                    # leave chroot"
-echo "  umount -R /mnt"
-echo "  reboot"
-echo ""
-warn "After reboot, log in as $USERNAME and run: bash 03-desktop-snapper.sh"
-echo ""
+info "  exit                    # leave chroot"
+info "  umount -R /mnt"
+info "  reboot and run: bash 03-desktop-snapper.sh"
+info ""

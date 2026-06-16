@@ -2,35 +2,52 @@
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/../.env"
 
+# ── Detection Firmware ──────────────────────────────────
+if [[ -d /sys/firmware/efi ]]; then
+    BOOT_MODE="UEFI"
+else
+    BOOT_MODE="BIOS"
+fi
+
+info "Detected boot mode: $BOOT_MODE"
+
 # ── Disk selection ──────────────────────────────────────
 lsblk -d -o NAME,SIZE,TYPE | grep disk
-echo ""
+info ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
 
-echo ""
+info ""
 warn "All data on /dev/$DISK will be destroyed!"
 read -rp "Type 'yes' to continue: " CONFIRM
 [[ "$CONFIRM" == "yes" ]] || die "Aborted."
 
 # ── Partition ───────────────────────────────────────────
-info "Opening cfdisk for /dev/$DISK — create EFI (512M, type EFI System) and root partitions."
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    info "Create EFI (512M FAT32) + Root partition"
+else
+    info "Create Root partition only (or BIOS boot partition if GPT+GRUB)"
+fi
 sleep 2
 cfdisk /dev/$DISK
 
 # ── Identify partitions ─────────────────────────────────
-echo ""
+info ""
 lsblk /dev/$DISK
-echo ""
-read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
-read -rp "Root (Btrfs) partition (e.g. nvme0n1p2): " ROOT_PART
+info ""
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
+    [[ -b "/dev/$EFI_PART" ]] || die "/dev/$EFI_PART not found."
+fi
 
-[[ -b "/dev/$EFI_PART" ]]  || die "/dev/$EFI_PART not found."
+read -rp "Root partition (e.g. nvme0n1p2): " ROOT_PART
 [[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
 
 # ── Format ──────────────────────────────────────────────
-info "Formatting EFI partition as FAT32..."
-mkfs.fat -F32 /dev/$EFI_PART
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    info "Formatting EFI partition..."
+    mkfs.fat -F32 /dev/$EFI_PART
+fi
 
 info "Formatting root partition as Btrfs..."
 mkfs.btrfs -f /dev/$ROOT_PART

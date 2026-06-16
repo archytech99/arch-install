@@ -7,41 +7,58 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/../.env"
 
 clear
-echo ""
-echo "=================================================="
-echo "   Arch Linux Install — Partition & Pacstrap"
-echo "=================================================="
-echo ""
+info ""
+info "=================================================="
+info "   Arch Linux Install — Partition & Pacstrap"
+info "=================================================="
+info ""
+
+# ── Detection Firmware ──────────────────────────────────
+if [[ -d /sys/firmware/efi ]]; then
+    BOOT_MODE="UEFI"
+else
+    BOOT_MODE="BIOS"
+fi
+
+info "Detected boot mode: $BOOT_MODE"
 
 # ── Disk selection ──────────────────────────────────────
 lsblk -d -o NAME,SIZE,TYPE | grep disk
-echo ""
+info ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
 
-echo ""
+info ""
 warn "All data on /dev/$DISK will be destroyed!"
 read -rp "Type 'yes' to continue: " CONFIRM
 [[ "$CONFIRM" == "yes" ]] || die "Aborted."
 
 # ── Partition ───────────────────────────────────────────
-info "Opening cfdisk for /dev/$DISK — create EFI (512M, type EFI System) and root partitions."
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    info "Create EFI (512M FAT32) + Root partition"
+else
+    info "Create Root partition only (or BIOS boot partition if GPT+GRUB)"
+fi
 sleep 2
 cfdisk /dev/$DISK
 
 # ── Identify partitions ─────────────────────────────────
-echo ""
+info ""
 lsblk /dev/$DISK
-echo ""
-read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
-read -rp "Root (Btrfs) partition (e.g. nvme0n1p2): " ROOT_PART
+info ""
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
+    [[ -b "/dev/$EFI_PART" ]] || die "/dev/$EFI_PART not found."
+fi
 
-[[ -b "/dev/$EFI_PART" ]]  || die "/dev/$EFI_PART not found."
+read -rp "Root partition (e.g. nvme0n1p2): " ROOT_PART
 [[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
 
 # ── Format ──────────────────────────────────────────────
-info "Formatting EFI partition as FAT32..."
-mkfs.fat -F32 /dev/$EFI_PART
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    info "Formatting EFI partition..."
+    mkfs.fat -F32 /dev/$EFI_PART
+fi
 
 info "Formatting root partition as Btrfs..."
 mkfs.btrfs -f /dev/$ROOT_PART
@@ -76,7 +93,9 @@ sleep 1
 mkdir "/mnt/home/.snapshots"
 mount -o compress=zstd,subvol=@snapshots_home /dev/$ROOT_PART /mnt/home/.snapshots
 
-mount /dev/$EFI_PART /mnt/boot
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    mount /dev/$EFI_PART /mnt/boot
+fi
 
 success "All partitions mounted."
 lsblk /dev/$DISK
@@ -90,14 +109,14 @@ pacstrap -K /mnt \
     reflector rsync fastfetch net-tools man-db man-pages
 
 info "Generating fstab..."
-echo "genfstab -U /mnt >> /mnt/etc/fstab"
+info "genfstab -U /mnt >> /mnt/etc/fstab"
 success "fstab generated."
-echo "cat /mnt/etc/fstab"
+info "cat /mnt/etc/fstab"
 
-echo ""
+info ""
 success "Pacstrap complete! Next step:"
-echo "  cp 02-chroot-setup.sh /root/02-chroot-setup.sh"
-echo "  cp 03-desktop-snapper.sh /root/03-desktop-snapper.sh"
-echo "  arch-chroot /mnt"
-echo "  bash /root/02-chroot-setup.sh"
-echo ""
+info "  cp 02-chroot-setup.sh /root/02-chroot-setup.sh"
+info "  cp 03-desktop-snapper.sh /root/03-desktop-snapper.sh"
+info "  arch-chroot /mnt"
+info "  bash /root/02-chroot-setup.sh"
+info ""
