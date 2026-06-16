@@ -79,7 +79,6 @@ success "Services enabled."
 
 # ── pacman.conf ─────────────────────────────────────────
 info "Enabling Parallel Downloads and multilib in pacman.conf..."
-grep -q "^\#\[multilib\]" /etc/pacman.conf && \
 sed -i 's/^#\[multilib\]/[multilib]/' /etc/pacman.conf
 sed -i 's|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/mirrorlist|' /etc/pacman.conf
 #nano /etc/pacman.conf
@@ -94,20 +93,20 @@ case "$BOOT_MODE" in
         DE_CHOICE="${DE_CHOICE:-1}"
 
         if [[ "$DE_CHOICE" == "1" ]]; then
-            bash bootloader/systemd-boot.sh
+            bash $SCRIPT_DIR/bootloader/systemd-boot.sh
         elif [[ "$DE_CHOICE" == "2" ]]; then
             warn "GRUB is not recommended for UEFI systems. Are you sure?"
             read -rp "Type 'yes' to continue: " CONFIRM
             [[ "$CONFIRM" == "yes" ]] || die "Aborted."
-            bash bootloader/grub-efi.sh
+            bash $SCRIPT_DIR/bootloader/grub-efi.sh
         else
             warn "Invalid choice, defaulting to systemd-boot."
             sleep 2
-            bash bootloader/systemd-boot.sh
+            bash $SCRIPT_DIR/bootloader/systemd-boot.sh
         fi
         ;;
     BIOS)
-        bash bootloader/grub-bios.sh
+        bash $SCRIPT_DIR/bootloader/grub-bios.sh
         ;;
 esac
 
