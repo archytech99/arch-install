@@ -64,7 +64,9 @@ elif [[ "$BOOT_MODE" == "BIOS" ]]; then
 fi
 
 info "Formatting root partition as Btrfs..."
-mkfs.btrfs -f /dev/$ROOT_PART
+if [[ "$BOOT_MODE" == "UEFI" ]]; then
+    mkfs.btrfs -f /dev/$ROOT_PART
+fi
 
 # ── Create Btrfs subvolumes ─────────────────────────────
 info "Mounting root to create subvolumes..."
