@@ -1,0 +1,104 @@
+@define-color highlight rgba(117, 241, 250, 1);
+@define-color dark-9 rgba(24, 24, 27, 0.8);
+@define-color dark-8 rgba(39, 39, 52, 1);
+@define-color dark-7 rgba(63, 63, 70, 1);
+@define-color dark-6 rgba(82, 82, 91, 1);
+@define-color dark-5 rgba(113, 113, 122, 1);
+
+* {
+    /* `otf-font-awesome` is required to be installed for icons */
+    /* font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif; */
+    font-family: JetBrainsMono Nerd Font Propo;
+    font-size: 14px;
+}
+
+window#waybar {
+    background-color: @dark-9;
+    /* border-bottom: 3px solid rgba(100, 114, 125, 0.5); */
+    color: white;
+    font-weight: 800;
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+#workspaces button {
+    padding: 2px;
+    /* margin: 4px 0px 4px 4px; */
+    margin: 5px 0px 5px 4px;
+    background: transparent;
+    border-radius: 4px;
+    color: white;
+}
+
+#workspaces button.active {
+    background: @highlight;
+    color: black;
+    font-weight: 800;
+}
+
+#workspaces button.urgent {
+    background-color: @urgent-color;
+}
+
+#clock {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 0px 5px 8px;
+}
+
+#bluetooth {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 0px 5px 4px;
+}
+
+#network {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 4px;
+}
+
+#battery {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#cpu {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#keyboard-state {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#pulseaudio {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#memory {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#custom-power {
+    border-radius: 4px;
+    padding: 5px 6px;
+    background: @dark-7;
+    margin: 5px 8px 5px 0px;
+}
