@@ -23,11 +23,12 @@ fi
 info "Detected boot mode: $BOOT_MODE"
 
 # ── Disk selection ──────────────────────────────────────
-lsblk -d -o NAME,SIZE,TYPE | grep disk
 info ""
 warn "note: Make sure to create partition /boot for"
 warn "UEFI mode, or BIOS boot partition for GPT+GRUB in BIOS mode."
 warn "BIOS+GPT requires bios_grub partition (1–5 MiB)"
+echo ""
+lsblk -d -o NAME,SIZE,TYPE | grep disk
 echo ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
@@ -47,9 +48,9 @@ sleep 2
 cfdisk /dev/$DISK
 
 # ── Identify partitions ─────────────────────────────────
-info ""
+echo ""
 lsblk /dev/$DISK
-info ""
+echo ""
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
     read -rp "Boot partition (e.g. nvme0n1p1): " BOOT_PART
     [[ -b "/dev/$BOOT_PART" ]] || die "/dev/$BOOT_PART not found."
@@ -120,9 +121,8 @@ genfstab -U /mnt >> /mnt/etc/fstab
 success "fstab generated."
 cat /mnt/etc/fstab
 
-info ""
+echo ""
 success "Pacstrap complete! Next step:"
 info "  arch-chroot /mnt"
 info "  bash -x /root/02-chroot-setup.sh"
 sleep 2
-info ""

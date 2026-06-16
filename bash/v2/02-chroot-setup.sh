@@ -8,11 +8,11 @@ source "$SCRIPT_DIR/../.env"
 
 [[ $EUID -eq 0 ]] || die "Run as root inside chroot."
 
-echo ""
-echo "=================================================="
-echo "   Arch Linux Install — Chroot Configuration"
-echo "=================================================="
-echo ""
+info ""
+info "=================================================="
+info "   Arch Linux Install — Chroot Configuration"
+info "=================================================="
+info ""
 
 # ── Detection Firmware ──────────────────────────────────
 if [[ -d /sys/firmware/efi ]]; then
@@ -47,12 +47,12 @@ success "Wheel group enabled."
 
 # ── User setup ──────────────────────────────────────────
 info "Create new user? (Recommended for daily use instead of root)"
-read -rp "Answer (Y)es/(N)o: " CONFIRM
+read -rp "Answer [Y]es/[N]o: " CONFIRM
 if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     read -rp "New username: " USERNAME
     [[ -n "$USERNAME" ]] || die "Username cannot be empty."
 
-    useradd -m -G wheel "$USERNAME"
+    useradd -m -G users,wheel -s /bin/bash "$USERNAME"
     info "Set password for $USERNAME:"
     passwd "$USERNAME"
 
@@ -109,9 +109,8 @@ case "$BOOT_MODE" in
         ;;
 esac
 
-info ""
+echo ""
 success "Chroot setup complete! Next steps:"
 info "  exit                    # leave chroot"
 info "  umount -R /mnt"
 info "  reboot and run: bash 03-desktop-snapper.sh"
-info ""
