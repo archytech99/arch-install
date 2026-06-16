@@ -78,10 +78,10 @@ systemctl enable ufw
 success "Services enabled."
 
 # ── pacman.conf ─────────────────────────────────────────
-info "Enabling Parallel Downloads and multilib in pacman.conf..."
-sed -i 's/^#\[multilib\]/[multilib]/' /etc/pacman.conf
-sed -i 's|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/mirrorlist|' /etc/pacman.conf
-#nano /etc/pacman.conf
+info "Enabling Parallel Downloads and [multilib] in pacman.conf..."
+#sed -i 's/^#\[multilib\]/[multilib]/' /etc/pacman.conf
+#sed -i 's|^#Include = /etc/pacman.d/mirrorlist|Include = /etc/pacman.d/mirrorlist|' /etc/pacman.conf
+nano /etc/pacman.conf
 pacman -Syu --noconfirm
 
 case "$BOOT_MODE" in
