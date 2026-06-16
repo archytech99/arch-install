@@ -109,7 +109,7 @@ su - <user>
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -sir
-cd ~
+cd ~/
 exit # return to root
 #######################################################################
 
