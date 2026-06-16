@@ -2,12 +2,18 @@
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$SCRIPT_DIR/.env"
 
-info "Starting Arch Bootstrap..."
+info "You can run this bootstrap script to execute all"
+info "installation steps in one go or run each script"
+info "manually in 'arch-install/bash/v1/' or"
+info "'arch-install/bash/v2/' folders for more control."
+sleep 3
 info "Choose install method:"
 info "  1) (minimal, manual setup)"
 info "  2) (guided, automated setup)"
+info "  or (E)xit"
 read -rp "Choice [2]: " DE_CHOICE
 DE_CHOICE="${DE_CHOICE:-2}"
+[[ "$DE_CHOICE" =~ ^[Ee]$ ]] && return 0
 
 if [[ "$DE_CHOICE" == "1" ]]; then
     info "Just 'cd' into v1/ and run each script in order number-wise"
@@ -23,10 +29,9 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
     bash v2/01-partition-pacstrap.sh
     #bash v2/02-chroot-setup.sh
     #bash v2/03-desktop-snapper.sh
+    info ""
+    info "Bootstrap completed."
 else
     die "Invalid choice. Exiting."
     exit 1
 fi
-
-echo ""
-echo "Bootstrap completed."
