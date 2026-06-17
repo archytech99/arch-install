@@ -1,209 +1,235 @@
 # Arch Linux Bootstrap Installer
 
-**Arch Linux Bootstrap** adalah kerangka kerja pasca-instalasi yang dapat direproduksi untuk Arch Linux, dirancang berdasarkan snapshot Btrfs, systemd-boot, dan penyediaan desktop modular.
+**Arch Linux Bootstrap** is a reproducible post-installation framework for Arch Linux, designed around Btrfs snapshots, systemd-boot, and modular desktop provisioning.
 
-Dibuat untuk pengguna yang lebih suka memahami setiap lapisan sistem mereka.
+Built for users who prefer to understand every layer of their system.
 
-Repo ini punya dua jalur utama:
-- **`bash/v1/`** — alur instalasi bertahap, dipisah per langkah.
-- **`bash/v2/`** — alur instalasi yang lebih ringkas, digabung jadi 3 tahap utama.
+This repository contains two main installation flows:
 
-> Semua skrip mengandalkan `source ../.env` untuk fungsi helper seperti `info`, `success`, `warn`, dan `die`.
+* **`bash/v1/`** — legacy step-by-step installation flow, separated by individual stages.
+* **`bash/v2/`** — streamlined installation flow, consolidated into 3 main stages.
 
-## Struktur folder
+> All scripts rely on `source ../.env` for helper functions such as `info`, `success`, `warn`, and `die`.
 
-| Path | Isi |
-|---|---|
-| `bash/v1/` | Versi lama, langkah demi langkah |
-| `bash/v2/` | Versi baru, lebih ringkas |
-| `backup/` | Backup konfigurasi dan data pengguna |
-| `cheat-sheet` | Catatan cepat / referensi |
+## Folder Structure
 
-## Gambaran alur instalasi
+| Path          | Content                             |
+| ------------- | ----------------------------------- |
+| `bash/v1/`    | Legacy version, step-by-step        |
+| `bash/v2/`    | Newer, more compact version         |
+| `backup/`     | User configuration and data backups |
+| `cheat-sheet` | Quick notes / references            |
 
-### Alur `v1`
-1. Partisi disk, format, dan buat subvolume Btrfs
-2. Mount semua partisi dan subvolume
-3. `pacstrap` paket dasar ke `/mnt`
-4. Set timezone, locale, hostname
-5. Buat user, aktifkan `sudo`, enable service
-6. Install systemd-boot dan konfigurasi `zram`
+## Installation Flow Overview
+
+### `v1` Flow
+
+1. Partition disk, format, and create Btrfs subvolumes
+2. Mount all partitions and subvolumes
+3. `pacstrap` base packages into `/mnt`
+4. Configure timezone, locale, and hostname
+5. Create user, enable `sudo`, enable services
+6. Install systemd-boot and configure `zram`
 7. Setup desktop environment
-8. Setup Snapper snapshot
+8. Setup Snapper snapshots
 
-### Alur `v2`
+### `v2` Flow
+
 1. `01-partition-pacstrap.sh`
-   - Partisi disk
-   - Format EFI dan root
-   - Buat subvolume Btrfs
-   - Mount layout final
-   - Install paket dasar dengan `pacstrap`
-2. `02-chroot-setup.sh`
-   - Timezone, locale, hostname
-   - User dan password
-   - Sudoers
-   - Service dasar
-   - Bootloader `systemd-boot`
-   - `pacman.conf`, `mkinitcpio`, `zram`, `yay`
-3. `03-desktop-snapper.sh`
-   - Pilih desktop: KDE Plasma atau Hyprland via ML4W
-   - Install audio stack, driver, dan aplikasi
-   - Setup Snapper root dan home
-   - Buat snapshot awal
 
-## Daftar skrip
+   * Partition disk
+   * Format EFI and root
+   * Create Btrfs subvolumes
+   * Mount final filesystem layout
+   * Install base packages using `pacstrap`
+
+2. `02-chroot-setup.sh`
+
+   * Timezone, locale, hostname
+   * User and password
+   * Sudoers configuration
+   * Core services
+   * `systemd-boot` bootloader
+   * `pacman.conf`, `mkinitcpio`, `zram`, `yay`
+
+3. `03-desktop-snapper.sh`
+
+   * Choose desktop: KDE Plasma or Hyprland via ML4W
+   * Install audio stack, drivers, and applications
+   * Setup Snapper for root and home
+   * Create initial snapshots
+
+## Script List
 
 ### `bash/v1/`
-| File | Fungsi |
-|---|---|
-| `0-btrfs_mnt.sh` | Partisi disk, format, buat subvolume Btrfs |
-| `1-mount_mnt.sh` | Mount semua subvolume ke `/mnt` |
-| `2-pacstrap_mnt.sh` | Install paket dasar ke sistem target |
-| `3-lctime-hostname.sh` | Set timezone, locale, dan hostname |
-| `4-user_sudoers.sh` | Buat user, set password, aktifkan sudo, install `yay` |
-| `5-bootload_zram.sh` | Setup systemd-boot, `zram-generator`, dan `pacman.conf` |
-| `6-desktop_environment.sh` | Install desktop environment dan paket pendukung |
-| `7-setup_snapshots.sh` | Setup Snapper dan snapshot awal |
+
+| File                       | Function                                                |
+| -------------------------- | ------------------------------------------------------- |
+| `0-btrfs_mnt.sh`           | Partition disk, format, create Btrfs subvolumes         |
+| `1-mount_mnt.sh`           | Mount all subvolumes to `/mnt`                          |
+| `2-pacstrap_mnt.sh`        | Install base packages to target system                  |
+| `3-lctime-hostname.sh`     | Configure timezone, locale, hostname                    |
+| `4-user_sudoers.sh`        | Create user, set password, enable sudo, install `yay`   |
+| `5-bootload_zram.sh`       | Setup systemd-boot, `zram-generator`, and `pacman.conf` |
+| `6-desktop_environment.sh` | Install desktop environment and supporting packages     |
+| `7-setup_snapshots.sh`     | Setup Snapper and initial snapshots                     |
 
 ### `bash/v2/`
-| File | Fungsi |
-|---|---|
-| `01-partition-pacstrap.sh` | Gabungan partisi, mount, dan pacstrap |
-| `02-chroot-setup.sh` | Konfigurasi sistem di dalam chroot |
-| `03-desktop-snapper.sh` | Desktop environment + Snapper |
 
-## Prasyarat
+| File                         | Function                                                   |
+| ---------------------------- | ---------------------------------------------------------- |
+| `bootloader/grub-bios.sh`    | Install bootloader using **GRUB** for `BIOS firmware`      |
+| `bootloader/grub-efi.sh`     | Install bootloader using **GRUB** for `EFI firmware`       |
+| `bootloader/systemd-boot.sh` | Install bootloader using `systemd-boot` for `EFI firmware` |
+| `01-partition-pacstrap.sh`   | Combined partitioning, mounting, and pacstrap              |
+| `02-chroot-setup.sh`         | System configuration inside chroot                         |
+| `03-desktop-snapper.sh`      | Desktop environment + Snapper                              |
 
-Skrip ini diasumsikan dijalankan di lingkungan Arch Linux dan membutuhkan:
-- akses `root` atau `sudo` sesuai tahap
-- paket utilitas partisi dan filesystem (`cfdisk`, `mkfs.fat`, `mkfs.btrfs`, `btrfs-progs`)
-- koneksi internet untuk instalasi paket
-- partisi EFI dan root Btrfs yang sudah dipilih manual
-- file `.env` pendamping yang menyediakan helper output dan validasi
+## Requirements
 
-## Cara pakai
+These scripts are intended to run in an Arch Linux environment and require:
 
-### Untuk alur `v2` yang lebih ringkas
+* `root` access or `sudo` depending on the stage
+* Partitioning and filesystem utilities (`cfdisk`, `mkfs.fat`, `mkfs.btrfs`, `btrfs-progs`)
+* Internet connection for package installation
+* Manually selected EFI partition and Btrfs root partition
+* Companion `.env` file providing output helpers and validation
+
+## Usage
+
+### For `v1` flow
+
+Enter the folder `arch-install/bash/v1`.
+
+Run scripts sequentially according to their numbering in the appropriate environment:
+
+* Partitioning and mounting scripts from **Arch live USB**
+* Chroot scripts inside **`arch-chroot /mnt`**
+* Desktop and snapshot scripts after first boot as a regular user
+
+### For the streamlined `v2` flow
 
 ```bash
-# pastikan sudah clone repo (git clone https://github.com/archytech99/arch-install.git)
-cd arch-install/bash/v2
-bash 01-partition-pacstrap.sh
-# setelah selesai install:
-genfstab -U /mnt >> /mnt/etc/fstab
-# memastikan apakah sudah benar
-cat /mnt/etc/fstab
+# make sure the repo has been cloned
+git clone https://github.com/archytech99/arch-install.git
+
+bash arch-install/bash/v2/01-partition-pacstrap.sh
+
+# after installation:
+mv arch-install/ /mnt/root
 arch-chroot /mnt
-bash /root/02-chroot-setup.sh
+cd /root
+bash arch-install/bash/v2/02-chroot-setup.sh
+chown <user>:<user> -R arch-install/
+mv arch-install/ /home/<user>/
 exit
 umount -R /mnt
 reboot
-# setelah boot pertama:
-bash 03-desktop-snapper.sh
+
+# after chroot setup and first boot:
+bash arch-install/bash/v2/03-desktop-snapper.sh
 ```
 
-### Untuk alur `v1`
+## Important Notes
 
-Jalankan skrip sesuai urutan nomornya dari lingkungan yang sesuai:
-- skrip partisi dan mount dari **Arch live USB**
-- skrip chroot di dalam **`arch-chroot /mnt`**
-- skrip desktop dan snapshot setelah boot pertama sebagai user biasa
+* Many scripts are **destructive**: they include `mkfs`, disk partitioning, and remount operations.
+* Scripts require manual input for disk, partition, hostname, username, and desktop options.
+* Some steps remain interactive and are not fully non-interactive.
+* `v2` is more practical for repeated installations due to its consolidated workflow.
+* Feel free to modify or update each script according to your needs.
 
-## Catatan penting
+## Backup Folder
 
-- Banyak skrip bersifat **destruktif**: ada `mkfs`, partisi disk, dan mount ulang.
-- Skrip meminta input manual untuk disk, partisi, hostname, username, dan opsi desktop.
-- Beberapa langkah masih interaktif dan tidak sepenuhnya non-interaktif.
-- `v2` lebih praktis untuk pemakaian berulang karena alurnya sudah dikonsolidasi.
-- Silahkan edit/update setiap skrip sesuai dengan kebutuhan.
+The `backup/` directory stores important configurations and data. Some files may contain sensitive information, so ensure only intended files are tracked or shared.
 
-## Backup folder
+## Documentation Status
 
-Folder `backup/` menyimpan konfigurasi dan data penting. Sebagian isinya bersifat sensitif, jadi pastikan hanya file yang memang ingin dibagikan yang ikut di-track.
+This README serves as a structural and workflow summary of scripts inside `bash/`.
 
-## Status dokumen
-
-README ini dibuat sebagai ringkasan struktur dan alur skrip di `bash/`.
-Kalau nanti ada perubahan flow, cukup update tabel langkah dan daftar file di atas supaya tetap sinkron.
+If the installation flow changes later, simply update the step tables and file list above to keep everything synchronized.
 
 ## Compatibility
 
-| Component | Supported |
-|---|---|
-| Boot Mode | UEFI only |
-| Filesystem | Btrfs only |
-| Bootloader | systemd-boot |
-| Desktop | KDE / Plasma / Hyprland |
+| Component  | Supported             |
+| ---------- | --------------------- |
+| Boot Mode  | UEFI only             |
+| Filesystem | Btrfs only            |
+| Bootloader | systemd-boot          |
+| Desktop    | KDE Plasma / Hyprland |
 
-## Keybinding
+## Keybindings
 
-Dokumentasi shortcut keyboard untuk environment **Hyprland**.
+Keyboard shortcut documentation for the **Hyprland** environment.
 
 ### Modifier Keys
 
-| Key             | Deskripsi              |
-| --------------- | ---------------------- |
-| `SUPER`         | Tombol Super / Windows |
-| `SUPER + SHIFT` | Secondary modifier     |
-| `SUPER + CTRL`  | Tertiary modifier      |
+| Key             | Description         |
+| --------------- | ------------------- |
+| `SUPER`         | Super / Windows key |
+| `SUPER + SHIFT` | Secondary modifier  |
+| `SUPER + CTRL`  | Tertiary modifier   |
+| `SUPER + ALT`   | Quaternary modifier |
 
 ---
 
 ### General Keybindings
 
-| Shortcut               | Fungsi                       |
-| ---------------------- | ---------------------------- |
-| `SUPER + ENTER`        | Membuka terminal             |
-| `SUPER + X`            | Menutup window aktif         |
-| `SUPER + CTRL + L`     | Logout / shutdown session    |
-| `SUPER + E`            | Membuka file manager         |
-| `SUPER + V`            | Toggle floating mode window  |
-| `SUPER + SPACE`        | Membuka application launcher |
-| `SUPER + CTRL + SPACE` | Membuka command runner       |
-| `SUPER + P`            | Toggle pseudo tiling         |
-| `SUPER + J`            | Toggle split layout          |
+| Shortcut               | Function                  |
+| ---------------------- | ------------------------- |
+| `SUPER + ENTER`        | Open terminal             |
+| `SUPER + X`            | Close active window       |
+| `SUPER + E`            | Open file manager         |
+| `SUPER + V`            | Open clipboard            |
+| `SUPER + B`            | Open browser              |
+| `SUPER + SHIFT + V`    | Toggle floating mode      |
+| `SUPER + SPACE`        | Open application launcher |
+| `SUPER + CTRL + E`     | Open emoji picker         |
+| `SUPER + CTRL + SPACE` | Open command runner       |
+| `SUPER + CTRL + L`     | Logout / shutdown session |
+| `SUPER + P`            | Toggle pseudo tiling      |
+| `SUPER + J`            | Toggle split layout       |
 
 ---
 
 ### Window Navigation
 
-| Shortcut    | Fungsi                |
-| ----------- | --------------------- |
-| `SUPER + ←` | Fokus ke window kiri  |
-| `SUPER + →` | Fokus ke window kanan |
-| `SUPER + ↑` | Fokus ke window atas  |
-| `SUPER + ↓` | Fokus ke window bawah |
+| Shortcut    | Function           |
+| ----------- | ------------------ |
+| `SUPER + ←` | Focus left window  |
+| `SUPER + →` | Focus right window |
+| `SUPER + ↑` | Focus upper window |
+| `SUPER + ↓` | Focus lower window |
 
 ---
 
 ### Workspace Management
 
-#### Pindah workspace
+#### Switch Workspace
 
-| Shortcut       | Fungsi                  |
+| Shortcut       | Function                |
 | -------------- | ----------------------- |
-| `SUPER + 1..9` | Pindah ke workspace 1–9 |
-| `SUPER + 0`    | Pindah ke workspace 10  |
+| `SUPER + 1..9` | Switch to workspace 1–9 |
+| `SUPER + 0`    | Switch to workspace 10  |
 
-#### Pindahkan window ke workspace
+#### Move Window to Workspace
 
-| Shortcut               | Fungsi                            |
-| ---------------------- | --------------------------------- |
-| `SUPER + SHIFT + 1..9` | Pindahkan window ke workspace 1–9 |
-| `SUPER + SHIFT + 0`    | Pindahkan window ke workspace 10  |
+| Shortcut               | Function                     |
+| ---------------------- | ---------------------------- |
+| `SUPER + SHIFT + 1..9` | Move window to workspace 1–9 |
+| `SUPER + SHIFT + 0`    | Move window to workspace 10  |
 
-#### Workspace cycling
+#### Workspace Cycling
 
-| Shortcut                    | Fungsi               |
-| --------------------------- | -------------------- |
-| `SUPER + Mouse Scroll Down` | Workspace berikutnya |
-| `SUPER + Mouse Scroll Up`   | Workspace sebelumnya |
+| Shortcut                    | Function           |
+| --------------------------- | ------------------ |
+| `SUPER + Mouse Scroll Down` | Next workspace     |
+| `SUPER + Mouse Scroll Up`   | Previous workspace |
 
 ---
 
 ### Mouse Actions
 
-| Shortcut              | Fungsi        |
+| Shortcut              | Function      |
 | --------------------- | ------------- |
 | `SUPER + Left Click`  | Drag window   |
 | `SUPER + Right Click` | Resize window |
@@ -212,42 +238,45 @@ Dokumentasi shortcut keyboard untuk environment **Hyprland**.
 
 ### Audio Controls
 
-| Shortcut      | Fungsi                 |
+| Shortcut      | Function               |
 | ------------- | ---------------------- |
-| `Volume Up`   | Naikkan volume +5%     |
-| `Volume Down` | Turunkan volume -5%    |
-| `Mute`        | Toggle mute speaker    |
-| `Mic Mute`    | Toggle mute microphone |
+| `Volume Up`   | Increase volume +5%    |
+| `Volume Down` | Decrease volume -5%    |
+| `Mute`        | Toggle speaker mute    |
+| `Mic Mute`    | Toggle microphone mute |
 
 ---
 
 ### Brightness Controls
 
-| Shortcut          | Fungsi                 |
-| ----------------- | ---------------------- |
-| `Brightness Up`   | Tambah brightness +5%  |
-| `Brightness Down` | Kurangi brightness -5% |
+| Shortcut          | Function                |
+| ----------------- | ----------------------- |
+| `Brightness Up`   | Increase brightness +5% |
+| `Brightness Down` | Decrease brightness -5% |
 
 ---
 
 ### Media Controls
 
-| Shortcut         | Fungsi             |
+| Shortcut         | Function           |
 | ---------------- | ------------------ |
-| `Next Track`     | Lagu berikutnya    |
+| `Next Track`     | Next track         |
 | `Play / Pause`   | Play / Pause media |
-| `Previous Track` | Lagu sebelumnya    |
+| `Previous Track` | Previous track     |
 
 ---
 
 ### Notes
 
-* Semua shortcut berbasis **Hyprland dispatcher**.
-* Multimedia key (`XF86*`) bergantung pada keyboard/laptop yang mendukung.
-* Audio control menggunakan:
+* All shortcuts are based on **Hyprland dispatchers**.
+
+* Multimedia keys (`XF86*`) depend on keyboard/laptop support.
+
+* Audio control uses:
 
   * `wpctl`
   * `playerctl`
-* Brightness control menggunakan:
+
+* Brightness control uses:
 
   * `brightnessctl`
