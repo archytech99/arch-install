@@ -182,7 +182,6 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
         xdg-utils \
         wl-clipboard \
         chromium \
-        clipman \
         blueman \
         grim \
         slurp \
@@ -215,6 +214,7 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
 
     info "Installing AUR packages"
     yay -S --needed --noconfirm \
+        clipman \
         python-pywal \
         aw-watcher-wallpaper \
         bibata-cursor-theme \
