@@ -27,14 +27,15 @@ DE_CHOICE="${DE_CHOICE:-1}"
 if [[ "$DE_CHOICE" == "1" ]]; then
     info "Installing KDE Plasma..."
     sudo pacman -Syu --noconfirm
-    sudo pacman -S --noconfirm plasma-meta dolphin konsole kate sddm xorg
+    sudo pacman -S --noconfirm \
+        plasma-meta dolphin konsole kate sddm xorg \
+        libreoffice steam btrfs-assistant
     sudo systemctl enable sddm
     success "KDE Plasma installed."
 
     info "Installing audio stack..."
     sudo pacman -S --noconfirm pipewire pipewire-pulse pipewire-alsa wireplumber
     success "PipeWire installed."
-
 
     info "Installing graphics stack..."
     info "Choose GPU vendor:"
@@ -96,14 +97,12 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
         rsync \
         man-db \
         man-pages \
-        networkmanager \
         bluez \
         bluez-utils \
         openssh \
         fastfetch
 
     info "Enabling essential services..."
-    sudo systemctl enable NetworkManager
     sudo systemctl enable bluetooth
 
     info "Installing audio stack..."
@@ -170,14 +169,15 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
         hyprlauncher \
         xdg-utils \
         wl-clipboard \
-        cliphist \
+        chromium \
+        blueman \
         grim \
         slurp \
         waybar \
         rofi-wayland \
         dunst \
         kitty \
-        nautilus \
+        dolphin \
         nwg-look \
         qt6ct \
         swww \
@@ -193,12 +193,22 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
     info "Installing minimal KDE (no kde-applications)..."
     sudo pacman -S --needed --noconfirm \
         plasma-desktop \
-        dolphin \
+        nautilus \
         polkit-kde-agent
 
     info "Installing display manager..."
     sudo pacman -S --needed --noconfirm sddm
     sudo systemctl enable sddm
+
+    info "Installing AUR packages"
+    yay -S --needed --noconfirm \
+        clipman \
+        python-pywal \
+        aw-watcher-wallpaper \
+        bibata-cursor-theme \
+        ttf-jetbrains-mono-nerd \
+        kora-icon-theme \
+        inotify-tools
 
     info "Creating default hyprland config..."
     mkdir -p $HOME/.config/hypr
@@ -207,18 +217,21 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
 
 hl.monitor({
     output   = "",
-    mode     = "preferred",
+    mode     = "1920x1080@60",
     position = "auto",
-    scale    = "auto",
+    scale    = "1",
 })
 
-local terminal    = "kitty"
-local fileManager = "dolphin"
-local menu        = "rofi -show drun"
-local cmd         = "rofi -show run"
+local terminal     = "kitty"
+local fileManager  = "nautilus ~"
+local browser      = "chromium"
+local menu         = "rofi -show drun"
+local cmd          = "rofi -show run"
+local emoji_picker = "plasma-emojier"
 
-hl.on("hyprland.start", function () 
+hl.on("hyprland.start", function ()
     hl.exec_cmd(terminal)
+    hl.exec_cmd("wl-paste -p -t text --watch clipman store -P --histpath='~/.local/share/clipman.json'")
     hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
     hl.exec_cmd("waybar & hyprpaper")
 end)
@@ -229,7 +242,7 @@ hl.env("HYPRCURSOR_SIZE", "24")
 hl.config({
     general = {
         gaps_in  = 2,
-        gaps_out = 14,
+        gaps_out = 6,
         border_size = 2,
         col = {
             active_border   = { colors = {"rgba(33ccffee)", "rgba(00ff99ee)"}, angle = 45 },
@@ -240,14 +253,14 @@ hl.config({
         layout = "dwindle",
     },
     decoration = {
-        rounding       = 10,
+        rounding       = 4,
         rounding_power = 2,
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
         shadow = {
             enabled      = true,
-            range        = 4,
-            render_power = 3,
+            range        = 3,
+            render_power = 2,
             color        = 0xee1a1a1a,
         },
         blur = {
@@ -333,23 +346,28 @@ hl.gesture({
 })
 
 hl.device({
-    name        = "epic-mouse-v1",
-    sensitivity = -0.5,
+--    name        = "epic-mouse-v1",
+    name        = "telink-wireless-receiver-mouse",
+    sensitivity = -0.25,
 })
 
 local mainMod = "SUPER"
 local secondMod = "SUPER + SHIFT"
 local thirdMod = "SUPER + CTRL"
+local fourthMod = "SUPER + ALT"
 
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
 local closeWindowBind = hl.bind(mainMod .. " + X", hl.dsp.window.close())
-hl.bind(thirdMod .. " + L", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
+hl.bind(thirdMod .. " + L", hl.dsp.exec_cmd("~/.local/bin/hyprshut"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(thirdMod .. " + E", hl.dsp.exec_cmd(emoji_picker))
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd("clipman pick -t rofi"))
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(menu))
 hl.bind(thirdMod .. " + SPACE", hl.dsp.exec_cmd(cmd))
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+hl.bind(secondMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up",    hl.dsp.focus({ direction = "up" }))
@@ -402,6 +420,339 @@ hl.window_rule({
 })
 EOF
 
+    info "Creating blank list clipman..."
+    mkdir -p $HOME/.local/share
+    echo "[]" > $HOME/.local/share/clipman.json
+
+    info "Creating hyprshut shortcut..."
+    mkdir -p $HOME/.local/bin
+    cat > $HOME/.local/bin/hyprshut << 'EOF'
+#!/bin/bash
+
+command -v hyprshutdown >/dev/null 2>&1
+hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'
+EOF
+    chmod +x $HOME/.local/bin/hyprshut
+
+    info "Creating custom env..."
+    mkdir -p $HOME/.bashrc.d
+    cat > $HOME/.bashrc.d/bashenv << 'EOF'
+if [ -d "$HOME/bin" ] ; then
+    export PATH="$HOME/bin:$PATH"
+fi
+
+if [ -z "$XDG_CONFIG_HOME" ] ; then
+    export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+waybar-reload() {
+    while
+        inotifywait -e close_write $XDG_CONFIG_HOME/waybar;
+    do
+        killall -SIGUSR2 waybar;
+    done
+}
+EOF
+
+    info "Creating pre-config waybar..."
+    mkdir -p $HOME/.config/waybar
+    cat > $HOME/.config/waybar/power_menu.xml << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+	<object class="GtkMenu" id="menu">
+		<child>
+			<object class="GtkMenuItem" id="logout">
+				<property name="label">Log Out</property>
+			</object>
+		</child>
+		<child>
+			<object class="GtkSeparatorMenuItem" id="delimiter1"/>
+		</child>
+		<child>
+			<object class="GtkMenuItem" id="reboot">
+				<property name="label">Reboot</property>
+			</object>
+		</child>
+		<child>
+			<object class="GtkMenuItem" id="shutdown">
+				<property name="label">Shutdown</property>
+			</object>
+		</child>
+	</object>
+</interface>
+EOF
+    cat > $HOME/.config/waybar/config.jsonc << 'EOF'
+{
+  "layer": "top",
+  "modules-left": [
+    "clock",
+    "bluetooth",
+    "network",
+    "hyprland/workspaces",
+    "hyprland/submap"
+  ],
+  "modules-center": [
+    "hyprland/window"
+  ],
+  "modules-right": [
+    "pulseaudio",
+    "cpu",
+    "memory",
+    "keyboard-state",
+    "custom/clipman",
+    "custom/power"
+  ],
+  "hyprland/window": {
+    "max-length": 50
+  },
+  "battery": {
+    "interval": 60,
+    "format": "{capacity}% {icon}",
+    "format-icons": {
+      "default": [
+        "󰂎",
+        "󰁺",
+        "󰁻",
+        "󰁼",
+        "󰁽",
+        "󰁾",
+        "󰁿",
+        "󰂀",
+        "󰂁",
+        "󰂂",
+        "󰁹"
+      ],
+      "charging": [
+        "󰢟",
+        "󰢜",
+        "󰂆",
+        "󰂇",
+        "󰂈",
+        "󰢝",
+        "󰂉",
+        "󰢞",
+        "󰂊",
+        "󰂋",
+        "󰂅"
+      ]
+    }
+  },
+  "bluetooth": {
+    "format": "",
+    "format-disabled": "",
+    "format-connected": " {num_connections}",
+    "tooltip-format": "{controller_alias}\t{controller_address}",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "on-click": "blueman-manager"
+  },
+  "clock": {
+    "format": "{:%H:%M}  ",
+    "format-alt": "{:%a, %d %b %Y (%R)}  ",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "left",
+      "on-scroll": 1,
+      "format": {
+        "months": "<span color='#ffead3'><b>{}</b></span>",
+        "days": "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks": "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays": "<span color='#ffcc66'><b>{}</b></span>",
+        "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
+  },
+  "cpu": {
+    "interval": 10,
+    "format": " {}%",
+    "max-length": 10
+  },
+  "custom/clipman": {
+    "format": "🗎",
+    "tooltip": true,
+    "tooltip-format": "<big>Clipboard</big>\n<tt><small>Left\t: Show list</small>\n<small>Middle\t: Clear list</small></tt>",
+    "on-click": "clipman pick -t rofi",
+    "on-click-middle": "clipman clear --all"
+  },
+  "custom/power": {
+    "format": "⏻",
+    "tooltip": false,
+    "menu": "on-click",
+    "menu-file": "~/.config/waybar/power_menu.xml",
+    "menu-actions": {
+      "shutdown": "shutdown",
+      "reboot": "reboot",
+      "logout": "~/.local/bin/hyprshut"
+    }
+  },
+  "keyboard-state": {
+    "numlock": true,
+    "capslock": true,
+    "format": "{name} {icon}",
+    "format-icons": {
+      "locked": "",
+      "unlocked": ""
+    }
+  },
+  "memory": {
+    "interval": 30,
+    "format": "{used:0.1f}G/{total:0.1f}G "
+  },
+  "network": {
+    "format": "",
+    "format-wifi": "",
+    "format-ethernet": "󰊗",
+    "format-disconnected": "",
+    "tooltip-format": "{ifname} via {gwaddr} 󰊗",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%) ",
+    "tooltip-format-ethernet": "{ifname} ",
+    "tooltip-format-disconnected": "Disconnected",
+    "max-length": 50
+  },
+  "pulseaudio": {
+    "format": "{volume}% {icon} {format_source}",
+    "format-bluetooth": "{volume}% {icon} {format_source}",
+    "format-bluetooth-muted": "󰅶 {icon} {format_source}",
+    "format-muted": "󰅶 {format_source}",
+    "format-source": "{volume}% ",
+    "format-source-muted": "",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "󰂑",
+      "headset": "󰂑",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": [
+        "",
+        "",
+        ""
+      ]
+    },
+    "on-click": "pavucontrol"
+  }
+}
+EOF
+    cat > $HOME/.config/waybar/style.css << 'EOF'
+@define-color highlight rgba(117, 241, 250, 1);
+@define-color dark-9 rgba(24, 24, 27, 0.8);
+@define-color dark-8 rgba(39, 39, 52, 1);
+@define-color dark-7 rgba(63, 63, 70, 1);
+@define-color dark-6 rgba(82, 82, 91, 1);
+@define-color dark-5 rgba(113, 113, 122, 1);
+
+* {
+    /* `otf-font-awesome` is required to be installed for icons */
+    /* font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif; */
+    font-family: JetBrainsMono Nerd Font Propo;
+    font-size: 14px;
+}
+
+window#waybar {
+    background-color: @dark-9;
+    /* border-bottom: 3px solid rgba(100, 114, 125, 0.5); */
+    color: white;
+    font-weight: 800;
+    transition-property: background-color;
+    transition-duration: .5s;
+}
+
+#workspaces button {
+    padding: 2px;
+    /* margin: 4px 0px 4px 4px; */
+    margin: 5px 0px 5px 4px;
+    background: transparent;
+    border-radius: 4px;
+    color: white;
+}
+
+#workspaces button.active {
+    background: @highlight;
+    color: black;
+    font-weight: 800;
+}
+
+#workspaces button.urgent {
+    background-color: @urgent-color;
+}
+
+#clock {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 0px 5px 8px;
+}
+
+#bluetooth {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 0px 5px 4px;
+}
+
+#network {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 4px;
+}
+
+#battery {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#custom-clipman {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#cpu {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#keyboard-state {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#pulseaudio {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#memory {
+    border-radius: 4px;
+    padding: 5px 8px;
+    background: @dark-7;
+    margin: 5px 4px 5px 0px;
+}
+
+#custom-power {
+    border-radius: 4px;
+    padding: 5px 6px;
+    background: @dark-7;
+    margin: 5px 8px 5px 0px;
+}
+EOF
     info ""
 
     success "Installation complete!"
@@ -421,7 +772,6 @@ elif [[ "$DE_CHOICE" == "3" ]]; then
         rsync \
         man-db \
         man-pages \
-        networkmanager \
         bluez \
         bluez-utils \
         openssh \
@@ -431,7 +781,7 @@ elif [[ "$DE_CHOICE" == "3" ]]; then
     sudo pacman -S --needed --noconfirm \
         kitty \
         neovim \
-        firefox \
+        chromium \
         nautilus \
         yazi \
         dolphin \
@@ -445,11 +795,23 @@ elif [[ "$DE_CHOICE" == "3" ]]; then
         grim \
         slurp \
         playerctl \
-        ttf-font-awesome
+        ttf-font-awesome \
+        noto-fonts \
+        noto-fonts-cjk \
+        noto-fonts-emoji \
+        otf-font-awesome
 
     info "Enabling essential services..."
-    sudo systemctl enable NetworkManager
     sudo systemctl enable bluetooth
+
+    info "Installing audio stack..."
+    sudo pacman -S --needed --noconfirm \
+        pipewire \
+        wireplumber \
+        pipewire-pulse \
+        pipewire-alsa \
+        pipewire-jack \
+        pavucontrol
 
     info "Installing graphics stack..."
     info "Choose GPU vendor:"
@@ -503,7 +865,9 @@ elif [[ "$DE_CHOICE" == "3" ]]; then
         bibata-cursor-theme \
         grimblast-git \
         nwg-dock-hyprland \
-        kora-icon-theme
+        ttf-jetbrains-mono-nerd \
+        kora-icon-theme \
+        inotify-tools
 
     info "Optional browsers"
     read -rp "Install Chromium? [y/N] " install_chromium
