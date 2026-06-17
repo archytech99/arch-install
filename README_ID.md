@@ -135,9 +135,9 @@ Kalau nanti ada perubahan flow, cukup update tabel langkah dan daftar file di at
 
 | Component | Supported |
 |---|---|
-| Boot Mode | UEFI only |
-| Filesystem | Btrfs only |
-| Bootloader | systemd-boot |
+| Boot Mode | Bios dan UEFI |
+| Filesystem | (saat ini) Btrfs |
+| Bootloader | GRUB dan systemd-boot |
 | Desktop | KDE / Plasma / Hyprland |
 
 ## Keybinding

@@ -152,9 +152,9 @@ If the installation flow changes later, simply update the step tables and file l
 
 | Component  | Supported             |
 | ---------- | --------------------- |
-| Boot Mode  | UEFI only             |
+| Boot Mode  | BIOS and UEFI         |
 | Filesystem | Btrfs only            |
-| Bootloader | systemd-boot          |
+| Bootloader | systemd-boot and GRUB |
 | Desktop    | KDE Plasma / Hyprland |
 
 ## Keybindings
