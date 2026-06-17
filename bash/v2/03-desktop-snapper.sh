@@ -436,7 +436,7 @@ EOF
 
     info "Creating blank list clipman..."
     mkdir -p $HOME/.local/share
-    cat "[]" > $HOME/.local/share/clipman.json
+    echo "[]" > $HOME/.local/share/clipman.json
 
     info "Creating hyprshut shortcut..."
     mkdir -p $HOME/.local/bin
