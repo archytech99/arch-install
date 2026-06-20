@@ -4,15 +4,15 @@
 # Run INSIDE arch-chroot /mnt
 # ============================================================
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "$SCRIPT_DIR/../.env"
+source "$SCRIPT_DIR/../bashenv"
 
 [[ $EUID -eq 0 ]] || die "Run as root inside chroot."
 
-info ""
+echo ""
 info "=================================================="
 info "   Arch Linux Install — Chroot Configuration"
 info "=================================================="
-info ""
+echo ""
 
 # ── Detection Firmware ──────────────────────────────────
 if [[ -d /sys/firmware/efi ]]; then

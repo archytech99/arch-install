@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "$SCRIPT_DIR/.env"
+source "$SCRIPT_DIR/bashenv"
 
 info "You can run this bootstrap script to execute all"
 info "installation steps in one go or run each script"
@@ -29,7 +29,7 @@ elif [[ "$DE_CHOICE" == "2" ]]; then
     bash v2/01-partition-pacstrap.sh
     #bash v2/02-chroot-setup.sh
     #bash v2/03-desktop-snapper.sh
-    info ""
+    echo ""
     info "Bootstrap completed."
 else
     die "Invalid choice. Exiting."

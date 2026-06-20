@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "$SCRIPT_DIR/../.env"
+source "$SCRIPT_DIR/../bashenv"
 
 [[ $EUID -eq 0 ]] || die "Run as root inside chroot."
 

@@ -4,14 +4,14 @@
 # Run from Arch Linux Live USB
 # ============================================================
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "$SCRIPT_DIR/../.env"
+source "$SCRIPT_DIR/../bashenv"
 
 clear
-info ""
+echo ""
 info "=================================================="
 info "   Arch Linux Install — Partition & Pacstrap"
 info "=================================================="
-info ""
+echo ""
 
 # ── Detection Firmware ──────────────────────────────────
 if [[ -d /sys/firmware/efi ]]; then
@@ -23,7 +23,7 @@ fi
 info "Detected boot mode: $BOOT_MODE"
 
 # ── Disk selection ──────────────────────────────────────
-info ""
+echo ""
 warn "note: Make sure to create partition /boot for"
 warn "UEFI mode, or BIOS boot partition for GPT+GRUB in BIOS mode."
 warn "BIOS+GPT requires bios_grub partition (1–5 MiB)"
@@ -33,7 +33,7 @@ echo ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
 
-info ""
+echo ""
 warn "All data on /dev/$DISK will be destroyed!"
 read -rp "Type 'yes' to continue: " CONFIRM
 [[ "$CONFIRM" == "yes" ]] || die "Aborted."
@@ -111,7 +111,7 @@ lsblk /dev/$DISK
 info "Running pacstrap (this may take a while)..."
 pacstrap -K /mnt \
     base linux linux-firmware linux-headers systemd amd-ucode \
-    sudo nano btop git curl wget openssh bash-completion \
+    sudo nano btop git curl wget openssh bash-completion eva \
     networkmanager ufw snapper zram-generator base-devel \
     reflector rsync fastfetch net-tools man-db man-pages
 

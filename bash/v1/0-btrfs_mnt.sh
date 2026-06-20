@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-source "$SCRIPT_DIR/../.env"
+source "$SCRIPT_DIR/../bashenv"
 
 # ── Detection Firmware ──────────────────────────────────
 if [[ -d /sys/firmware/efi ]]; then
@@ -13,11 +13,11 @@ info "Detected boot mode: $BOOT_MODE"
 
 # ── Disk selection ──────────────────────────────────────
 lsblk -d -o NAME,SIZE,TYPE | grep disk
-info ""
+echo ""
 read -rp "Enter disk (e.g. nvme0n1 or sda): " DISK
 [[ -b "/dev/$DISK" ]] || die "Disk /dev/$DISK not found."
 
-info ""
+echo ""
 warn "All data on /dev/$DISK will be destroyed!"
 read -rp "Type 'yes' to continue: " CONFIRM
 [[ "$CONFIRM" == "yes" ]] || die "Aborted."
@@ -32,9 +32,9 @@ sleep 2
 cfdisk /dev/$DISK
 
 # ── Identify partitions ─────────────────────────────────
-info ""
+echo ""
 lsblk /dev/$DISK
-info ""
+echo ""
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
     read -rp "EFI partition (e.g. nvme0n1p1): " EFI_PART
     [[ -b "/dev/$EFI_PART" ]] || die "/dev/$EFI_PART not found."

@@ -9,7 +9,7 @@ This repository contains two main installation flows:
 * **`bash/v1/`** — legacy step-by-step installation flow, separated by individual stages.
 * **`bash/v2/`** — streamlined installation flow, consolidated into 3 main stages.
 
-> All scripts rely on `source ../.env` for helper functions such as `info`, `success`, `warn`, and `die`.
+> All scripts rely on `source ../bashenv` for helper functions such as `info`, `success`, `warn`, and `die`.
 
 ## Folder Structure
 
@@ -93,7 +93,7 @@ These scripts are intended to run in an Arch Linux environment and require:
 * Partitioning and filesystem utilities (`cfdisk`, `mkfs.fat`, `mkfs.btrfs`, `btrfs-progs`)
 * Internet connection for package installation
 * Manually selected EFI partition and Btrfs root partition
-* Companion `.env` file providing output helpers and validation
+* Companion `bashenv` file providing output helpers and validation
 
 ## Usage
 

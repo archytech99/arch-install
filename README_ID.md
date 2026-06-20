@@ -8,7 +8,7 @@ Repo ini punya dua jalur utama:
 - **`bash/v1/`** — alur instalasi bertahap, dipisah per langkah.
 - **`bash/v2/`** — alur instalasi yang lebih ringkas, digabung jadi 3 tahap utama.
 
-> Semua skrip mengandalkan `source ../.env` untuk fungsi helper seperti `info`, `success`, `warn`, dan `die`.
+> Semua skrip mengandalkan `source ../bashenv` untuk fungsi helper seperti `info`, `success`, `warn`, dan `die`.
 
 ## Struktur folder
 
@@ -82,7 +82,7 @@ Skrip ini diasumsikan dijalankan di lingkungan Arch Linux dan membutuhkan:
 - paket utilitas partisi dan filesystem (`cfdisk`, `mkfs.fat`, `mkfs.btrfs`, `btrfs-progs`)
 - koneksi internet untuk instalasi paket
 - partisi EFI dan root Btrfs yang sudah dipilih manual
-- file `.env` pendamping yang menyediakan helper output dan validasi
+- file `bashenv` pendamping yang menyediakan helper output dan validasi
 
 ## Cara pakai
 
