@@ -49,7 +49,7 @@ cfdisk /dev/$DISK
 
 # ── Identify partitions ─────────────────────────────────
 echo ""
-lsblk /dev/$DISK
+lsblk  -d -o NAME,SIZE,TYPE | grep part
 echo ""
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
     read -rp "Boot partition (e.g. nvme0n1p1): " BOOT_PART
@@ -58,6 +58,13 @@ fi
 
 read -rp "Root partition (e.g. nvme0n1p2): " ROOT_PART
 [[ -b "/dev/$ROOT_PART" ]] || die "/dev/$ROOT_PART not found."
+
+read -rp "(optional) Add Data Partition [Y]es / [N]o : " OPS
+if [[ "$OPS" =~ ^[Yy]$ ]]; then
+    warn "Manual Partition / Ready to Mount for Data Partition"
+    read -rp "Data partition (e.g. nvme0n1p2): " DATA_PART
+    [[ -b "/dev/$DATA_PART" ]] || die "/dev/$DATA_PART not found."
+fi
 
 # ── Format ──────────────────────────────────────────────
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
@@ -75,7 +82,7 @@ mkfs.btrfs -f /dev/$ROOT_PART
 info "Mounting root to create subvolumes..."
 mount /dev/$ROOT_PART /mnt
 
-for subvol in @ @home @varlog @docker @snapshots @snapshots_home; do
+for subvol in @ @home @var_log @snapshots @snapshots_home; do
     btrfs subvolume create /mnt/$subvol
     success "Created subvol: $subvol"
 done
@@ -87,21 +94,24 @@ info "Mounting @ subvolume..."
 mount -o compress=zstd,subvol=@ /dev/$ROOT_PART /mnt
 
 info "Creating mount directories..."
-mkdir -p /mnt/{boot,home,var/log,var/lib/docker,.snapshots}
+mkdir -p /mnt/{boot,/mnt/data,home,var/log,.snapshots}
 
 info "Mounting subvolumes..."
 sleep 1
 mount -o compress=zstd,subvol=@home         /dev/$ROOT_PART /mnt/home
-mount -o compress=zstd,subvol=@varlog       /dev/$ROOT_PART /mnt/var/log
-mount -o compress=zstd,subvol=@docker       /dev/$ROOT_PART /mnt/var/lib/docker
+mount -o compress=zstd,subvol=@var_log       /dev/$ROOT_PART /mnt/var/log
 mount -o compress=zstd,subvol=@snapshots    /dev/$ROOT_PART /mnt/.snapshots
 
 info "Creating mount directories...@snapshots_home"
 sleep 1
 mkdir "/mnt/home/.snapshots"
 mount -o compress=zstd,subvol=@snapshots_home /dev/$ROOT_PART /mnt/home/.snapshots
+
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
     mount /dev/$BOOT_PART /mnt/boot
+fi
+if [[ "$OPS" =~ ^[Yy]$ ]]; then
+    mount /dev/$DATA_PART /mnt/mnt/boot
 fi
 
 success "All partitions mounted."
