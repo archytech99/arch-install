@@ -4,8 +4,8 @@ source "$SCRIPT_DIR/bashenv"
 
 info "You can run this bootstrap script to execute all"
 info "installation steps in one go or run each script"
-info "manually in 'arch-install/bash/v1/' or"
-info "'arch-install/bash/v2/' folders for more control."
+info "manually in 'arch-install/bash/' folders for"
+info "more control."
 sleep 3
 info "Choose install method:"
 info "  1) (minimal, manual setup)"
