@@ -49,7 +49,7 @@ cfdisk /dev/$DISK
 
 # ── Identify partitions ─────────────────────────────────
 echo ""
-lsblk  -d -o NAME,SIZE,TYPE | grep part
+lsblk -o NAME,SIZE,TYPE | grep part
 echo ""
 if [[ "$BOOT_MODE" == "UEFI" ]]; then
     read -rp "Boot partition (e.g. nvme0n1p1): " BOOT_PART
@@ -111,7 +111,7 @@ if [[ "$BOOT_MODE" == "UEFI" ]]; then
     mount /dev/$BOOT_PART /mnt/boot
 fi
 if [[ "$OPS" =~ ^[Yy]$ ]]; then
-    mount /dev/$DATA_PART /mnt/mnt/boot
+    mount /dev/$DATA_PART /mnt/mnt/data
 fi
 
 success "All partitions mounted."
@@ -134,5 +134,5 @@ cat /mnt/etc/fstab
 echo ""
 success "Pacstrap complete! Next step:"
 info "  arch-chroot /mnt"
-info "  bash -x /root/02-chroot-setup.sh"
+info "  bash /root/02-chroot-setup.sh"
 sleep 2

@@ -101,6 +101,7 @@ esac
 
 echo ""
 success "Chroot setup complete! Next steps:"
-info "  exit                    # leave chroot"
+info "  exit"
 info "  umount -R /mnt"
 info "  reboot and run: bash 03-desktop-snapper.sh"
+sleep 2

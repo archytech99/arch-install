@@ -50,7 +50,7 @@ sudo snapper -c home ls
 
 # ── YAY (AUR helper) ────────────────────────────────────
 if ! command -v yay &> /dev/null; then
-    warning "yay not found. Installing yay..."
+    warn "yay not found. Installing yay..."
 
     tmp_dir=$(mktemp -d)
     git clone https://aur.archlinux.org/yay.git "$tmp_dir/yay"
@@ -322,8 +322,8 @@ XephyrPath=/usr/bin/Xephyr
 EOF
 sleep 1
 
-sudo snapper -c root create -t post --pre-number 2 -d "Fresh Desktop Environment"
-sudo snapper -c home create -t post --pre-number 2 -d "Fresh Desktop Environment"
+sudo snapper -c root create -t post --pre-number 1 -d "Fresh Desktop Environment"
+sudo snapper -c home create -t post --pre-number 1 -d "Fresh Desktop Environment"
 
 echo ""
 success "All done! Your Arch Linux system is ready."
