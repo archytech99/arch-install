@@ -17,16 +17,6 @@ info "Enabling wheel group in sudoers..."
 sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 success "Wheel group enabled."
 
-# ── YAY (AUR helper) ────────────────────────────────────
-info "Installing yay as $USERNAME..."
-su - "$USERNAME" -c "
-    git clone https://aur.archlinux.org/yay.git /tmp/yay
-    cd /tmp/yay
-    makepkg -sir --noconfirm
-    rm -rf /tmp/yay
-"
-success "yay installed."
-
 # ── Services ────────────────────────────────────────────
 info "Enabling services..."
 systemctl enable NetworkManager

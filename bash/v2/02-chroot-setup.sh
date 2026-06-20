@@ -55,16 +55,6 @@ if [[ "$CONFIRM" =~ ^[Yy]$ ]]; then
     useradd -m -G users,wheel -s /bin/bash "$USERNAME"
     info "Set password for $USERNAME:"
     passwd "$USERNAME"
-
-    # ── YAY (AUR helper) ────────────────────────────────────
-    info "Installing yay as $USERNAME..."
-    su - "$USERNAME" -c "
-        git clone https://aur.archlinux.org/yay.git /tmp/yay
-        cd /tmp/yay
-        makepkg -sir --noconfirm
-        rm -rf /tmp/yay
-    "
-    success "yay installed."
 fi
 info "Set root password:"
 passwd
