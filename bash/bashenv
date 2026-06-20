@@ -271,7 +271,7 @@ EOF
     info "Creating hyprshut shortcut..."
     mkdir -p $HOME/.local/bin
     cat > $HOME/.local/bin/hyprshut << 'EOF'
-#!/bin/bash
+#!/usr/bin/env bash
 
 command -v hyprshutdown >/dev/null 2>&1
 hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'
